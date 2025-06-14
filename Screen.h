@@ -6,5 +6,5 @@ class Screen : public Console{
 public: 
 
 private:
-    void printScreen(const std::string& ) const;
+    void printScreen();
 };
