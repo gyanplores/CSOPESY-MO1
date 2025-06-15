@@ -5,7 +5,7 @@
 
 class Screen : public Console{
 public: 
-    Screen(String processName);
+    Screen(std::string processName);
     void onEnabled() override;
     void display() override;
     void process() override;

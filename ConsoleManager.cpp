@@ -1,6 +1,6 @@
 #include "ConsoleManager.h"
 #include "MainConsole.h"
-#include "SchedulingConsole.h"
+//#include "SchedulingConsole.h"
 
 #include <iostream>
 #include <Windows.h>
@@ -8,6 +8,7 @@
 
 
 ConsoleManager* ConsoleManager::sharedInstance = nullptr;
+
 ConsoleManager* ConsoleManager::get_instance(){
     return sharedInstance;
 }
@@ -18,13 +19,14 @@ void ConsoleManager::initialize_console_manager(){  //  Instantiates a new conso
 
 void ConsoleManager::destroy_console_manager(){     //  Destroys the console Manager
     delete sharedInstance;
+    sharedInstance = nullptr;
 }
 
-void ConsoleManager::draw_console(){
+void ConsoleManager::draw_console() const {
     this->curr_console->display();
 }
 
-void ConsoleManager::process(){
+void ConsoleManager::process() const{
     this->curr_console->process();
 }
 
@@ -48,7 +50,7 @@ void ConsoleManager::return_console(){
     this->curr_console->onEnabled();
 }
 
-bool ConsoleManager::running_checker(){
+bool ConsoleManager::running_checker() const {
     return running;
 }
 
@@ -58,17 +60,21 @@ void ConsoleManager::exit_application(){
 
 ConsoleManager::ConsoleManager(){
     this->running = true;
-    //this->console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    this->console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
 
     const std::shared_ptr<MainConsole> main_console = std::make_shared<MainConsole>();
-    const std::shared_ptr<MarqueeConsole> marquee_console = std::make_shared<MarqueeConsole>();
-    const std::shared_ptr<SchedulingConsole> scheduling_console = std::make_shared<SchedulingConsole>();
-    const std::shared_ptr<MemoryConsole> memory_console = std::make_shared<MemoryConsole>();
+    //const std::shared_ptr<MarqueeConsole> marquee_console = std::make_shared<MarqueeConsole>();
+    //const std::shared_ptr<SchedulingConsole> scheduling_console = std::make_shared<SchedulingConsole>();
+    //const std::shared_ptr<MemoryConsole> memory_console = std::make_shared<MemoryConsole>();
 
-    this->console_table[MAIN_CONSOLE] = main_console;
-    this->console_table[MARQUEE_CONSOLE] = marquee_console;
-    this->console_table[SCHEDULE_CONSOLE] = scheduling_console;
-    this->console_table[MEMORY_CONSOLE] = memory_console;
+    this->console_table[MAIN] = main_console;
+    //this->console_table[MARQUEE] = marquee_console;
+    //this->console_table[SCHEDULE] = scheduling_console;
+    //this->console_table[MEMORY] = memory_console;
 
-    this->switch_console(MAIN_CONSOLE);
+    this->switch_console(MAIN);
+}
+
+HANDLE ConsoleManager::getConsoleHandle() const{
+    return console_handle;
 }

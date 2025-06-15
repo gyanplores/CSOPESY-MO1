@@ -24,24 +24,28 @@ public:
     void process() const;
     void switch_console(String console_name);
 
-    void register_screen(std::shared_ptr<Screen> screen_ref);
-    void switch_screen(String screen_name);
-    void unregister_screen(String screen_name);
+    //void register_screen(std::shared_ptr<Screen> screen_ref);
+    //void switch_screen(String screen_name);
+    //void unregister_screen(String screen_name);
 
     void return_console();
     bool running_checker() const;
     void exit_application();
-private: 
+
+    HANDLE getConsoleHandle() const;
+
+    private: 
     ConsoleManager();
     ~ConsoleManager() = default;
-    ConsoleManager(ConsoleManager const&) {}
-    ConsoleManager& operator=(ConsoleManager const&) {return *this;}
+    ConsoleManager(ConsoleManager const&) {};
+    //ConsoleManager& operator=(ConsoleManager const&) {};
     static ConsoleManager* sharedInstance; 
-
+    
     ConsoleTable console_table;
     bool running = true;
 
     HANDLE console_handle;
+
     std::shared_ptr<Console> curr_console;
     std::shared_ptr<Console> prev_console;
 };

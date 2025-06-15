@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <vector>
 #include <string>
 #include "Console.h"
 
@@ -10,6 +11,19 @@ public:
     void display() override;
     void process() override;
 private:
+    enum class StringCode {
+        exit,
+        clear,
+        help,
+        initialize,
+        screen,
+        scheduler_test,
+        scheduler_stop,
+        report_util,
+        unknown
+    };
     void printCommands() const;
-    void tokenize()
+    void tokenizeCommand(const std::string& command, std::string& setcommand, std::string& name);
+    StringCode hashString(const std::string& str);
+
 };
