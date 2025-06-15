@@ -1,10 +1,15 @@
 #pragma once
-
+#include <memory>
+#include <string>
 #include "Console.h"
 
 class Screen : public Console{
 public: 
-
+    Screen(String processName);
+    void onEnabled() override;
+    void display() override;
+    void process() override;
 private:
-    void printScreen();
+    void printProcess() const;
+    //std::shared_ptr<Process> attached_process;
 };

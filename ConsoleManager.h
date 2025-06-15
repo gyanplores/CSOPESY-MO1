@@ -21,14 +21,16 @@ public:
     static void destroy_console_manager();
 
     void draw_console() const;
+    void process() const;
     void switch_console(String console_name);
-    void return_console();
-    void running_checker() const;
-    void exit_application();
 
     void register_screen(std::shared_ptr<Screen> screen_ref);
     void switch_screen(String screen_name);
     void unregister_screen(String screen_name);
+
+    void return_console();
+    bool running_checker() const;
+    void exit_application();
 private: 
     ConsoleManager();
     ~ConsoleManager() = default;
@@ -37,6 +39,9 @@ private:
     static ConsoleManager* sharedInstance; 
 
     ConsoleTable console_table;
-
     bool running = true;
+
+    HANDLE console_handle;
+    std::shared_ptr<Console> curr_console;
+    std::shared_ptr<Console> prev_console;
 };
