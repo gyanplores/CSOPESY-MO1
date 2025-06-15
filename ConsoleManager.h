@@ -4,16 +4,17 @@
 #include <unordered_map>
 #include <Windows.h>
 #include <string>
+#include <memory>
 
 using String = std::string;
 
 const String MAIN = "MAIN_CONSOLE";
 const String MARQUEE = "MARQUEE_CONSOLE";
-const String SHEDULE = "SCHEDULE_CONSOLE";
+const String SCHEDULE = "SCHEDULE_CONSOLE";
 
 class ConsoleManager{
 public:
-    typedef std::unordered_map<String, std::shared_ptr<Console>> ConTable;
+    typedef std::unordered_map<String, std::shared_ptr<Console>> ConsoleTable;
 
     static ConsoleManager* get_instance();
     static void initialize_console_manager();
@@ -25,17 +26,17 @@ public:
     void running_checker() const;
     void exit_application();
 
-    void register_screen(std::shard_ptr<Screen> screen_ref);
+    void register_screen(std::shared_ptr<Screen> screen_ref);
     void switch_screen(String screen_name);
     void unregister_screen(String screen_name);
 private: 
     ConsoleManager();
     ~ConsoleManager() = default;
-    ConsoleManager(ConsoleManager const&) {};
-    ConsoleManager& operator=(ConsoleManager const&) {};
-    static ConsoleManager* sharedInstance;
+    ConsoleManager(ConsoleManager const&) {}
+    ConsoleManager& operator=(ConsoleManager const&) {return *this;}
+    static ConsoleManager* sharedInstance; 
 
-    ConTable conTable;
+    ConsoleTable console_table;
 
     bool running = true;
 };

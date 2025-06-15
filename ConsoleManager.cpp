@@ -5,11 +5,6 @@
 #include <iostream>
 
 ConsoleManager* ConsoleManager::sharedInstance = nullptr;
-ConsoleManager* ConsoleManager::getInstance(){
+ConsoleManager* ConsoleManager::get_instance(){
     return sharedInstance;
-}
-
-class ConsoleManager{
-    public:
-    
 }
