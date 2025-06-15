@@ -4,8 +4,10 @@
 
 #include <iostream>
 
-const String MAIN_CONSOLE = "MAIN_CONSOLE";
-const String SCHEDULING_CONSOLE = "SCHEDULING_CONSOLE";
+ConsoleManager* ConsoleManager::sharedInstance = nullptr;
+ConsoleManager* ConsoleManager::getInstance(){
+    return sharedInstance;
+}
 
 class ConsoleManager{
     public:
