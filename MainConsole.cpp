@@ -16,11 +16,11 @@ void MainConsole::onEnabled(){
               << "| |    _  \\_____   \\ |  | |  | |   ____/ |   ____| \\_____   \\  \\____   |\n"
               << "| |___/ | |  |__|  | |  |_|  | |  |      |  |____  |  |__|  | |  |__|  |\n"
               << "\\_______/ \\_______/  \\_______/ |__|      \\_______| \\_______/  \\_______/\n\n";
+    std::cout << "Welcome to CSOPESY commandline!" << "\n";
+    std::cout << "Type 'exit' to quit, 'clear' to clear screen, and 'help' to view commands" << "\n";
 }
 
 void MainConsole::display(){
-    std::cout << "Welcome to CSOPESY commandline!" << "\n";
-    std::cout << "Type 'exit' to quit, 'clear' to clear screen, and 'help' to view commands" << "\n";
     std::cout << "Type a command: ";
 }
 
