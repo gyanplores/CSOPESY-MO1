@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <ctime>
+#include <string>
 
 
 class Process {
@@ -11,16 +13,21 @@ class Process {
             WAITING,
             FINISHED
         };
-    private:
+    public:
         int id; //ID of process
         int instruction_lines_max; //all lines of instructions of process - defaults to print currently
         int instruction_lines_current = 0;
 
         int current_core;
 
+        time_t timestamp;
+
         ProcessState state = READY;
 
     public:
         Process(int i, int n);
-        static std::vector<Process> print_processes() 
+        std::string setCurrentTime();
+        static std::vector<Process> print_processes();
+        void setRunning();
+        
 };
