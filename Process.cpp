@@ -11,7 +11,7 @@ std::vector<Process> Process::print_processes() {
     static std::vector<Process> v;
 
     for (int i = 0; i < 10; i++){
-        v.push_back(Process(i, 10));
+        v.push_back(Process(i, 100));
     }
 
     return v;

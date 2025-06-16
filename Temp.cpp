@@ -25,16 +25,14 @@ int main() {
     while (i < 10){
         for (int j = 0; j < CORE::N_CORE && i < 10; j++) {
             threads.push_back(std::thread(&CORE::run_print, cores[j], print_process[i]));
-            std::cout<<i<<std::endl;
             i++;
             
         }
 
-        for (int j = 0; j < CORE::N_CORE && j < threads.size(); j++) {
-            threads[j].join();
-        }
+    }
 
-        threads.clear();
+    for (int j = 0; j < 10; j++) {
+        threads[j].join();
     }
     
 }

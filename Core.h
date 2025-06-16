@@ -11,7 +11,7 @@ public:
     inline static const int N_CORE = 4;              // Declared here so it can be used below
 
 private:
-    inline static const int DELAY = 1;                // Sleep duration
+    inline static const int DELAY = 100;                // Sleep duration
     int id;
 
 public:

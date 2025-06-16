@@ -9,7 +9,7 @@ void CORE::run_print(Process p){
     p.setRunning();
     int i;
 
-    std::string filename = "process_";
+    std::string filename = "Output_files/process_";
     filename.append(std::to_string(p.id));
     filename.append(".txt");
 
