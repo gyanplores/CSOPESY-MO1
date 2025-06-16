@@ -29,10 +29,13 @@ int main() {
             
         }
 
-    }
+        for (int j = 0; j < CORE::N_CORE && j < threads.size(); j++) {
+            threads[j].join();
+        }
 
-    for (int j = 0; j < 10; j++) {
-        threads[j].join();
+        std::cout<<std::endl;
+
+        threads.clear();
     }
     
 }
