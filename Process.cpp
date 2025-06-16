@@ -21,6 +21,10 @@ void Process::setRunning(){
     this->state = RUNNING;
 }
 
+void Process::setFinished(){
+    this->state = FINISHED;
+}
+
 std::string Process::setCurrentTime(){
     time(&(this->timestamp));
     time_t t = this->timestamp;

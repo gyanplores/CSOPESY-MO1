@@ -28,6 +28,7 @@ class Process {
         Process(int i, int n);
         std::string setCurrentTime();
         static std::vector<Process> print_processes();
-        void setRunning();
         
+        void setRunning();
+        void setFinished();
 };

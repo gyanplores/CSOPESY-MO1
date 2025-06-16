@@ -1,0 +1,14 @@
+Process Name:  process_2
+Logs:
+
+Mon Jun 16 19:40:27 2025  |  CORE: 2 Hello World from process_2
+Mon Jun 16 19:40:27 2025  |  CORE: 2 Hello World from process_2
+Mon Jun 16 19:40:27 2025  |  CORE: 2 Hello World from process_2
+Mon Jun 16 19:40:27 2025  |  CORE: 2 Hello World from process_2
+Mon Jun 16 19:40:27 2025  |  CORE: 2 Hello World from process_2
+Mon Jun 16 19:40:27 2025  |  CORE: 2 Hello World from process_2
+Mon Jun 16 19:40:27 2025  |  CORE: 2 Hello World from process_2
+Mon Jun 16 19:40:27 2025  |  CORE: 2 Hello World from process_2
+Mon Jun 16 19:40:27 2025  |  CORE: 2 Hello World from process_2
+Mon Jun 16 19:40:27 2025  |  CORE: 2 Hello World from process_2
+Mon Jun 16 19:40:27 2025  |  CORE: 2 Hello World from process_2
