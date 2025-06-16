@@ -31,7 +31,7 @@ void MainConsole::process(){
 
     tokenizeCommand(command, setcommand, name); //  Tokenize command
     
-    std::cout << "Command is: " << setcommand << " Name is:" << name << "\n\n"; //  For Testing
+    // std::cout << "Command is: " << setcommand << " Name is:" << name << "\n\n"; //  For Testing
 
     switch (hashString(setcommand)) {
         case StringCode::exit:

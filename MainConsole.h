@@ -22,7 +22,6 @@ private:
         report_util,
         unknown
     };
-    void printCommands() const;
     void tokenizeCommand(const std::string& command, std::string& setcommand, std::string& name);
     StringCode hashString(const std::string& str);
 
