@@ -1,26 +1,29 @@
 #pragma once
-
-#include <vector>
-
+#include <fstream>
+#include <mutex>
 
 class Process {
-    public:
-        enum ProcessState{
-            READY = 0,
-            RUNNING,
-            WAITING,
-            FINISHED
-        };
-    private:
-        int id; //ID of process
-        int instruction_lines_max; //all lines of instructions of process - defaults to print currently
-        int instruction_lines_current = 0;
+public:
+    enum State { READY, RUNNING, WAITING, FINISHED };
 
-        int current_core;
+    Process(int id, int maxPrints);
+    ~Process();
 
-        ProcessState state = READY;
+    // called by a worker; writes one entry, returns true when done
+    bool executePrint(int coreId);
 
-    public:
-        Process(int i, int n);
-        static std::vector<Process> print_processes() 
+    // open the per-process log file
+    void openLogFile();
+
+    int getId() const;
+    void setState(State s);
+
+private:
+    int id;
+    int maxPrints;
+    int printedCount = 0;
+    State state;
+
+    std::ofstream logFile;
+    std::mutex   fileMutex;
 };

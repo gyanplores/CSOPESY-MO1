@@ -1,5 +1,6 @@
 #include "MainConsole.h"
 #include "ConsoleManager.h"
+#include "SchedulingConsole.h"
 
 #include <iostream>
 #include <string>
@@ -7,98 +8,88 @@
 #include <vector>
 #include <cstdlib>
 
-MainConsole::MainConsole() : Console("MAIN_CONSOLE"){}
+MainConsole::MainConsole()
+  : Console("MAIN_CONSOLE") {}
 
-void MainConsole::onEnabled(){
-    std::cout << " _______   _______    _______   _______   _______   _______    __    __\n" 
-              << "/  ___  \\ /   __  \\  /   _   \\ /   _   \\ /   ____| /   __  \\  |  |  |  |\n"
-              << "| |   \\_| |  |__|__| |  | |  | |  |_|  | |  |____  |  |__|__| |  \\__|  |\n"
-              << "| |    _  \\_____   \\ |  | |  | |   ____/ |   ____| \\_____   \\  \\____   |\n"
-              << "| |___/ | |  |__|  | |  |_|  | |  |      |  |____  |  |__|  | |  |__|  |\n"
-              << "\\_______/ \\_______/  \\_______/ |__|      \\_______| \\_______/  \\_______/\n\n";
-    std::cout << "Welcome to CSOPESY commandline!" << "\n";
-    std::cout << "Type 'exit' to quit, 'clear' to clear screen, and 'help' to view commands" << "\n";
+void MainConsole::onEnabled() {
+    std::cout
+      << " _______   _______    _______   _______   _______   _______    __    __\n"
+      << "/  ___  \\ /   __  \\  /   _   \\ /   _   \\ /   ____| /   __  \\  |  |  |  |\n"
+      << "| |   \\_| |  |__|__| |  | |  | |  |_|  | |  |____  |  |__|__| |  \\__|  |\n"
+      << "| |    _  \\_____   \\ |  | |  | |   ____/ |   ____| \\_____   \\  \\____   |\n"
+      << "| |___/ | |  |__|  | |  |_|  | |  |      |  |____  |  |__|  | |  |__|  |\n"
+      << "\\_______/ \\_______/  \\_______/ |__|      \\_______| \\_______/  \\_______/\n\n"
+      << "Welcome to CSOPESY commandline!\n"
+      << "Type 'exit' to quit, 'clear' to clear screen, and 'help' to view commands\n";
 }
 
-void MainConsole::display(){
+void MainConsole::display() {
     std::cout << "Type a command: ";
 }
 
-void MainConsole::process(){
+void MainConsole::process() {
     std::string command, setcommand, name;
-
-    std::getline(std::cin, command); // Takes commands with spaces into consideration
-
-    tokenizeCommand(command, setcommand, name); //  Tokenize command
-    
-    // std::cout << "Command is: " << setcommand << " Name is:" << name << "\n\n"; //  For Testing
+    std::getline(std::cin, command);
+    tokenizeCommand(command, setcommand, name);
 
     switch (hashString(setcommand)) {
         case StringCode::exit:
-            ConsoleManager::get_instance()->exit_application();  // Exit program
+            ConsoleManager::get_instance()->exit_application();
             break;
         case StringCode::clear:
-            system("cls");  // Clear screen (Windows-specific)
-            onEnabled(); // Reprint Header
+            system("cls");
+            onEnabled();
             break;
         case StringCode::help:
-            // Display available commands
-            std::cout << "Available commands:\n"
-                      << "  exit            - Quit the program\n"
-                      << "  clear           - Clear the screen\n"
-                      << "  help            - Show this help message\n"
-                      << "  initialize      - Run initialization routine\n"
-                      << "  screen          - Perform screen-related action\n"
-                      << "  scheduler-test  - Test the scheduler\n"
-                      << "  scheduler-stop  - Stop the scheduler\n"
-                      << "  report-util     - Run report utility\n";
-            break;
-        case StringCode::initialize:
-            std::cout << "initialize command recognized. Doing something.\n";
-            break;
-        case StringCode::screen:
-            std::cout << "screed command recognized. Doing something.\n";
+            std::cout
+              << "Available commands:\n"
+              << "  exit            - Quit the program\n"
+              << "  clear           - Clear the screen\n"
+              << "  help            - Show this help message\n"
+              << "  initialize      - Run initialization routine\n"
+              << "  screen          - Perform screen-related action\n"
+              << "  scheduler-test  - Enter scheduler console\n"
+              << "  scheduler-stop  - Stop the scheduler (inside scheduler console)\n"
+              << "  report-util     - Run report utility\n";
             break;
         case StringCode::scheduler_test:
-            std::cout << "scheduler-test command recognized. Doing something.\n";
+            ConsoleManager::get_instance()->switch_console(SCHEDULE);
             break;
         case StringCode::scheduler_stop:
-            std::cout << "scheduler-stop command recognized. Doing something.\n";
+            // if typed here, no effect; actual stop done inside SchedulingConsole
+            std::cout << "Use 'scheduler-stop' inside the scheduler console.\n";
             break;
         case StringCode::report_util:
             std::cout << "report-util command recognized. Doing something.\n";
             break;
-        case StringCode::unknown:
+        default:
             std::cout << "error: unknown command. Please type a valid command.\n";
-            break;
     }
 }
 
-void MainConsole::tokenizeCommand(const std::string& command, std::string& setcommand, std::string& name){
+void MainConsole::tokenizeCommand(const std::string& command, std::string& setcommand, std::string& name) {
     std::istringstream fullstring(command);
     std::vector<std::string> tokens;
     std::string token;
-
-    while(getline(fullstring, token, ' ')){
+    while (std::getline(fullstring, token, ' ')) {
         tokens.push_back(token);
     }
-
-    if(tokens.size() >= 2){
-        setcommand = tokens[0] + " " + tokens[1];   //  Specifically made for "screen -r"
-        name = tokens[2];
-    }else{
+    if (tokens.size() >= 2) {
+        setcommand = tokens[0] + " " + tokens[1];
+        name       = tokens[2];
+    } else {
         setcommand = tokens[0];
     }
 }
 
 MainConsole::StringCode MainConsole::hashString(const std::string& str) {
-    if (str == "exit") return StringCode::exit;
-    if (str == "clear") return StringCode::clear;
-    if (str == "help") return StringCode::help;
-    if (str == "initialize") return StringCode::initialize;
-    if (str == "screen -r") return StringCode::screen;
-    if (str == "scheduler-test") return StringCode::scheduler_test;
-    if (str == "scheduler-stop") return StringCode::scheduler_stop;
-    if (str == "report-util") return StringCode::report_util;
-    return StringCode::unknown;  // Return unknown if command doesn't match any known ones
+    if      (str == "exit")           return StringCode::exit;
+    else if (str == "clear")          return StringCode::clear;
+    else if (str == "help")           return StringCode::help;
+    else if (str == "initialize")     return StringCode::initialize;
+    else if (str == "screen -r")      return StringCode::screen;
+    else if (str == "scheduler-test") return StringCode::scheduler_test;
+    else if (str == "scheduler-stop") return StringCode::scheduler_stop;
+    else if (str == "report-util")    return StringCode::report_util;
+    else                               return StringCode::unknown;
 }

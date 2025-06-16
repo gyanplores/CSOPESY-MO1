@@ -1,80 +1,73 @@
 #include "ConsoleManager.h"
 #include "MainConsole.h"
-//#include "SchedulingConsole.h"
+#include "SchedulingConsole.h"
 
 #include <iostream>
 #include <Windows.h>
 #include <string>
 
-
 ConsoleManager* ConsoleManager::sharedInstance = nullptr;
 
-ConsoleManager* ConsoleManager::get_instance(){
+ConsoleManager* ConsoleManager::get_instance() {
     return sharedInstance;
 }
 
-void ConsoleManager::initialize_console_manager(){  //  Instantiates a new console Manager
+void ConsoleManager::initialize_console_manager() {
     sharedInstance = new ConsoleManager();
 }
 
-void ConsoleManager::destroy_console_manager(){     //  Destroys the console Manager
+void ConsoleManager::destroy_console_manager() {
     delete sharedInstance;
     sharedInstance = nullptr;
 }
 
 void ConsoleManager::draw_console() const {
-    this->curr_console->display();
+    curr_console->display();
 }
 
-void ConsoleManager::process() const{
-    this->curr_console->process();
+void ConsoleManager::process() const {
+    curr_console->process();
 }
 
-void ConsoleManager::switch_console(std::string console_name){
+void ConsoleManager::switch_console(std::string console_name) {
     system("cls");
-    this->prev_console = this->curr_console;
-    this->curr_console = this->console_table[console_name];
-    this->curr_console->onEnabled();
+    prev_console = curr_console;
+    curr_console = console_table[console_name];
+    curr_console->onEnabled();
 }
 
-//void ConsoleManager::register_screen(std::shared_ptr<Screen> screen_ref){}
-//void ConsoleManager::switch_screen(std::string screen_name){}
-//void ConsoleManager::unregister_screen(std::string screen_name){}
-
-void ConsoleManager::return_console(){
-    std::shared_ptr<Console> temp = this->curr_console;
-    this->curr_console = this->prev_console;
-    this->prev_console = temp;
-
+void ConsoleManager::return_console() {
+    std::swap(curr_console, prev_console);
     system("cls");
-    this->curr_console->onEnabled();
+    curr_console->onEnabled();
 }
 
 bool ConsoleManager::running_checker() const {
     return running;
 }
 
-void ConsoleManager::exit_application(){
+void ConsoleManager::exit_application() {
     running = false;
 }
 
-ConsoleManager::ConsoleManager(){
-    this->running = true;
-    this->console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+ConsoleManager::ConsoleManager() {
+    running = true;
+    console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    const std::shared_ptr<MainConsole> main_console = std::make_shared<MainConsole>();
-    //const std::shared_ptr<MarqueeConsole> marquee_console = std::make_shared<MarqueeConsole>();
-    //const std::shared_ptr<SchedulingConsole> scheduling_console = std::make_shared<SchedulingConsole>();
-    //const std::shared_ptr<MemoryConsole> memory_console = std::make_shared<MemoryConsole>();
+    // Register consoles
+    auto main_console       = std::make_shared<MainConsole>();
+    // auto marquee_console  = std::make_shared<MarqueeConsole>();
+    auto scheduling_console = std::make_shared<SchedulingConsole>();
+    // auto memory_console   = std::make_shared<MemoryConsole>();
 
-    this->console_table[MAIN] = main_console;
-    //this->console_table[MARQUEE] = marquee_console;
-    //this->console_table[SCHEDULE] = scheduling_console;
-    //this->console_table[MEMORY] = memory_console;
+    console_table[MAIN]     = main_console;
+    // console_table[MARQUEE] = marquee_console;
+    console_table[SCHEDULE] = scheduling_console;
+    // console_table[MEMORY]  = memory_console;
 
-    this->switch_console(MAIN);
+    switch_console(MAIN);
 }
 
-HANDLE ConsoleManager::getConsoleHandle() const{
+HANDLE ConsoleManager::getConsoleHandle() const {
     return console_handle;
 }

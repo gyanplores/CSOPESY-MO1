@@ -1,6 +1,7 @@
 #pragma once
 #include "Console.h"
 #include "Screen.h"
+#include "SchedulingConsole.h"
 #include <unordered_map>
 #include <Windows.h>
 #include <string>
@@ -8,11 +9,11 @@
 
 using String = std::string;
 
-const String MAIN = "MAIN_CONSOLE";
-const String MARQUEE = "MARQUEE_CONSOLE";
+const String MAIN     = "MAIN_CONSOLE";
+const String MARQUEE  = "MARQUEE_CONSOLE";
 const String SCHEDULE = "SCHEDULE_CONSOLE";
 
-class ConsoleManager{
+class ConsoleManager {
 public:
     typedef std::unordered_map<String, std::shared_ptr<Console>> ConsoleTable;
 
@@ -24,26 +25,21 @@ public:
     void process() const;
     void switch_console(String console_name);
 
-    //void register_screen(std::shared_ptr<Screen> screen_ref);
-    //void switch_screen(String screen_name);
-    //void unregister_screen(String screen_name);
-
     void return_console();
     bool running_checker() const;
     void exit_application();
 
     HANDLE getConsoleHandle() const;
 
-    private: 
+private:
     ConsoleManager();
     ~ConsoleManager() = default;
-    ConsoleManager(ConsoleManager const&) {};
-    //ConsoleManager& operator=(ConsoleManager const&) {};
-    static ConsoleManager* sharedInstance; 
+    ConsoleManager(ConsoleManager const&) = delete;
+
+    static ConsoleManager* sharedInstance;
     
     ConsoleTable console_table;
     bool running = true;
-
     HANDLE console_handle;
 
     std::shared_ptr<Console> curr_console;

@@ -4,12 +4,13 @@
 #include <string>
 #include "Console.h"
 
-class MainConsole : public Console{
-public: 
+class MainConsole : public Console {
+public:
     MainConsole();
     void onEnabled() override;
     void display() override;
     void process() override;
+
 private:
     enum class StringCode {
         exit,
@@ -22,7 +23,7 @@ private:
         report_util,
         unknown
     };
+
     void tokenizeCommand(const std::string& command, std::string& setcommand, std::string& name);
     StringCode hashString(const std::string& str);
-
 };
