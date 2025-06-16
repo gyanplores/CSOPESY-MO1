@@ -1,6 +1,6 @@
 #include "ConsoleManager.h"
 #include "MainConsole.h"
-//#include "SchedulingConsole.h"
+#include "SchedulingConsole.h"
 
 #include <iostream>
 #include <Windows.h>
@@ -64,12 +64,12 @@ ConsoleManager::ConsoleManager(){
 
     const std::shared_ptr<MainConsole> main_console = std::make_shared<MainConsole>();
     //const std::shared_ptr<MarqueeConsole> marquee_console = std::make_shared<MarqueeConsole>();
-    //const std::shared_ptr<SchedulingConsole> scheduling_console = std::make_shared<SchedulingConsole>();
+    const std::shared_ptr<SchedulingConsole> scheduling_console = std::make_shared<SchedulingConsole>();
     //const std::shared_ptr<MemoryConsole> memory_console = std::make_shared<MemoryConsole>();
 
     this->console_table[MAIN] = main_console;
     //this->console_table[MARQUEE] = marquee_console;
-    //this->console_table[SCHEDULE] = scheduling_console;
+    this->console_table[SCHEDULE] = scheduling_console;
     //this->console_table[MEMORY] = memory_console;
 
     this->switch_console(MAIN);

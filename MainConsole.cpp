@@ -60,7 +60,7 @@ void MainConsole::process(){
             std::cout << "screed command recognized. Doing something.\n";
             break;
         case StringCode::scheduler_test:
-            std::cout << "scheduler-test command recognized. Doing something.\n";
+            ConsoleManager::get_instance()->switch_console(SCHEDULE);
             break;
         case StringCode::scheduler_stop:
             std::cout << "scheduler-stop command recognized. Doing something.\n";
