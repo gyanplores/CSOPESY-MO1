@@ -17,6 +17,7 @@ public:
     typedef std::unordered_map<String, std::shared_ptr<Console>> ConsoleTable;
 
     static ConsoleManager* get_instance();
+    ConsoleTable& getConsoleTable();
     static void initialize_console_manager();
     static void destroy_console_manager();
 

@@ -16,5 +16,5 @@ private:
 
 public:
     CORE(int i);
-    void run_print(Process p);
+    void run_print(Process& p);
 };

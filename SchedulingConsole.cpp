@@ -19,27 +19,33 @@ void SchedulingConsole::display() {
     std::cout << "Type 'start' to begin FCFS Scheduling or 'exit' to return to main.\n> ";
 }
 
-std::string Process::setCurrentTime() {
-    time(&timestamp);
-    struct tm* timeinfo = localtime(&timestamp);
+void SchedulingConsole::runSchedulerInBackground() {
+    isSchedulerRunning = true;
+    processList.clear();
 
-    std::ostringstream oss;
-    oss << "("
-        << std::setw(2) << std::setfill('0') << timeinfo->tm_mon + 1 << "/"
-        << std::setw(2) << std::setfill('0') << timeinfo->tm_mday << "/"
-        << (1900 + timeinfo->tm_year) << " ";
+    std::vector<CORE> cores;
+    for (int i = 0; i < CORE::N_CORE; i++) {
+        cores.emplace_back(i);
+    }
 
-    int hour = timeinfo->tm_hour;
-    bool is_pm = hour >= 12;
-    if (hour == 0) hour = 12;
-    else if (hour > 12) hour -= 12;
+    {
+        std::lock_guard<std::mutex> lock(processMutex);
+        processList = Process::print_processes(); // Shared reference for live updates
+    }
 
-    oss << std::setw(2) << std::setfill('0') << hour << ":"
-        << std::setw(2) << std::setfill('0') << timeinfo->tm_min << ":"
-        << std::setw(2) << std::setfill('0') << timeinfo->tm_sec
-        << (is_pm ? "PM" : "AM") << ")";
+    std::vector<std::thread> threads;
+    int i = 0;
+    while (i < processList.size()) {
+        for (int j = 0; j < CORE::N_CORE && i < processList.size(); j++, i++) {
+            threads.emplace_back(&CORE::run_print, &cores[j], std::ref(processList[i]));
+        }
 
-    return oss.str();
+        for (auto& t : threads) t.join();
+        threads.clear();
+    }
+
+    isSchedulerRunning = false;
+    std::cout << "\n[Scheduler] All processes finished in background.\n";
 }
 
 void SchedulingConsole::process() {
@@ -47,33 +53,19 @@ void SchedulingConsole::process() {
     std::getline(std::cin, cmd);
 
     if (cmd == "start") {
-        std::cout << "Starting FCFS Scheduler...\n";
-
-        std::vector<Process> processes = Process::print_processes();
-        std::vector<CORE> cores;
-        std::vector<std::thread> threads;
-
-        for (int i = 0; i < CORE::N_CORE; i++) {
-            cores.emplace_back(i);
+        if (isSchedulerRunning) {
+            std::cout << "[Scheduler] FCFS is already running in the background.\n";
+        } else {
+            std::cout << "[Scheduler] Starting FCFS Scheduler in background...\n";
+            schedulerThread = std::thread(&SchedulingConsole::runSchedulerInBackground, this);
+            schedulerThread.detach(); // Don't block the main console
         }
-
-        int i = 0;
-        while (i < processes.size()) {
-            for (int j = 0; j < CORE::N_CORE && i < processes.size(); j++, i++) {
-                threads.emplace_back(&CORE::run_print, &cores[j], processes[i]);
-            }
-
-            for (auto& t : threads) {
-                t.join();
-            }
-
-            threads.clear();
-        }
-
-        std::cout << "All processes finished.\n";
-
-    } else if (cmd == "print") {
-        std::cout << "[Scheduler] Running print simulation...\n";
+    } else if (cmd == "exit") {
+        ConsoleManager::get_instance()->switch_console(MAIN);
+        
+    } 
+    else if (cmd == "print") {
+        std::cout << "[Scheduler] Starting print simulation in foreground...\n";
 
         std::vector<Process> print_process = Process::print_processes();
         std::vector<std::thread> threads;
@@ -86,7 +78,7 @@ void SchedulingConsole::process() {
         int i = 0;
         while (i < print_process.size()) {
             for (int j = 0; j < CORE::N_CORE && i < print_process.size(); j++, i++) {
-                threads.push_back(std::thread(&CORE::run_print, cores[j], print_process[i]));
+                threads.emplace_back(&CORE::run_print, &cores[j], std::ref(print_process[i]));
             }
 
             for (auto& t : threads) {
@@ -97,11 +89,11 @@ void SchedulingConsole::process() {
         }
 
         std::cout << "[Scheduler] All print logs written to Output_files/ directory.\n";
-
-    } else if (cmd == "exit") {
-        ConsoleManager::get_instance()->return_console();
-
-    } else {
+    }
+    else if (cmd == "screen") {
+        ConsoleManager::get_instance()->switch_console("SCREEN_VIEW");
+    }
+    else {
         std::cout << "Unknown command.\n";
     }
 }
