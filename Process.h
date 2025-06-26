@@ -4,6 +4,11 @@
 #include <ctime>
 #include <string>
 
+struct InstructionLog {
+    std::string timestamp;
+    int coreId;
+    std::string message;
+};
 
 class Process {
     public:
@@ -23,6 +28,8 @@ class Process {
         time_t timestamp;
 
         ProcessState state = READY;
+
+        std::vector<InstructionLog> instructionLogs;
 
     public:
         Process(int i, int n);

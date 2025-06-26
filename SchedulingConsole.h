@@ -4,6 +4,7 @@
 #include <thread>
 #include "Process.h"
 #include <mutex>
+#include "Core.h"
 
 class SchedulingConsole : public Console {
 private:
@@ -11,6 +12,9 @@ private:
     bool isSchedulerRunning = false;
     std::vector<Process> processList;
     std::mutex processMutex;
+    std::vector<int> coreUtilization;
+    std::mutex utilizationMutex;
+
 public:
     SchedulingConsole();
     friend class Screen;

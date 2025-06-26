@@ -11,5 +11,7 @@ public:
     void process() override;
 
 private:
+    void printProcess(std::string processName);
     void printProcess() const;
+    void generateFile() const;
 };

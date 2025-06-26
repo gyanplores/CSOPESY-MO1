@@ -28,6 +28,8 @@ void SchedulingConsole::runSchedulerInBackground() {
         cores.emplace_back(i);
     }
 
+    coreUtilization.resize(CORE::N_CORE, 0);
+
     {
         std::lock_guard<std::mutex> lock(processMutex);
         processList = Process::print_processes(); // Shared reference for live updates
@@ -38,6 +40,11 @@ void SchedulingConsole::runSchedulerInBackground() {
     while (i < processList.size()) {
         for (int j = 0; j < CORE::N_CORE && i < processList.size(); j++, i++) {
             threads.emplace_back(&CORE::run_print, &cores[j], std::ref(processList[i]));
+
+            {
+                std::lock_guard<std::mutex> lock(utilizationMutex); 
+                coreUtilization[j]++; 
+            }
         }
 
         for (auto& t : threads) t.join();
@@ -90,7 +97,7 @@ void SchedulingConsole::process() {
 
         std::cout << "[Scheduler] All print logs written to Output_files/ directory.\n";
     }
-    else if (cmd == "screen") {
+    else if (cmd == "screen -ls") {
         ConsoleManager::get_instance()->switch_console("SCREEN_VIEW");
     }
     else {

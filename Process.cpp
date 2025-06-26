@@ -32,3 +32,18 @@ std::string Process::setCurrentTime(){
     thetime.erase(thetime.find('\n', 0), 1);
     return thetime;
 }
+
+void Process::logInstruction(int coreId, const std::string& message) {
+    time_t now;
+    time(&now);
+    char timeBuffer[80];
+    strftime(timeBuffer, sizeof(timeBuffer), "%m/%d/%Y %I:%M:%S%p", localtime(&now));
+
+    InstructionLog log = {
+        timeBuffer,
+        coreId,
+        message
+    };
+
+    instructionLogs.push_back(log);
+}
