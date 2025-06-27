@@ -8,13 +8,14 @@
 
 class CORE {
 public:
-    inline static const int N_CORE = 4;              // Declared here so it can be used below
+    inline static int N_CORE = 4;              // Declared here so it can be used below
+    inline static int DELAY = 100;                // Sleep duration
 
 private:
-    inline static const int DELAY = 100;                // Sleep duration
     int id;
 
 public:
     CORE(int i);
+    void set_CoreN(int n);
     void run_print(Process& p);
 };

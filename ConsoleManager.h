@@ -21,6 +21,8 @@ public:
     static void initialize_console_manager();
     static void destroy_console_manager();
 
+    void initialize_console();
+
     void draw_console() const;
     void process() const;
     void switch_console(String console_name);

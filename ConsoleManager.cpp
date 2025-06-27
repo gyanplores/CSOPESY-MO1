@@ -4,6 +4,8 @@
 #include "Screen.h"
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <Windows.h>
 #include <string>
 
@@ -21,6 +23,32 @@ void ConsoleManager::initialize_console_manager(){  //  Instantiates a new conso
 void ConsoleManager::destroy_console_manager(){     //  Destroys the console Manager
     delete sharedInstance;
     sharedInstance = nullptr;
+}
+
+void ConsoleManager::initialize_console(){
+    std::ifstream file("config.txt");
+    std::string line;
+
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::string key;
+        iss >> key;
+
+        if (key == "num-cpu") {
+            int value;
+            iss >> value;
+            CORE::N_CORE = value;
+            std::cout << "[Config] Set number of cores to " << CORE::N_CORE << "\n";
+        }
+        if (key == "delay-per-exec"){
+            int value;
+            iss >> value;
+            CORE::DELAY = value;
+            std::cout << "[Config] set delay to " << CORE::DELAY << "\n";
+        }
+    }
+
+    file.close();
 }
 
 void ConsoleManager::draw_console() const {

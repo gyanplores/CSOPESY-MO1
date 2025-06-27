@@ -54,7 +54,7 @@ void MainConsole::process(){
                       << "  report-util     - Run report utility\n";
             break;
         case StringCode::initialize:
-            std::cout << "initialize command recognized. Doing something.\n";
+            ConsoleManager::get_instance()->initialize_console();
             break;
         case StringCode::screen:
             std::cout << "screed command recognized. Doing something.\n";
