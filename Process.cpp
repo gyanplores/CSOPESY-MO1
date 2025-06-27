@@ -33,7 +33,7 @@ std::string Process::setCurrentTime(){
     return thetime;
 }
 
-void Process::logInstruction(int coreId, const std::string& message) {
+void Process::logInstruction(int coreId) {
     time_t now;
     time(&now);
     char timeBuffer[80];
@@ -41,8 +41,7 @@ void Process::logInstruction(int coreId, const std::string& message) {
 
     InstructionLog log = {
         timeBuffer,
-        coreId,
-        message
+        coreId
     };
 
     instructionLogs.push_back(log);

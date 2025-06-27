@@ -19,6 +19,8 @@ void CORE::run_print(Process& p) {
              << " Hello World from process_" << p.id << "\n";
 
         p.instruction_lines_current = i;
+        p.logInstruction(p.current_core);
+
 
         std::this_thread::sleep_for(std::chrono::milliseconds(CORE::DELAY));
     }

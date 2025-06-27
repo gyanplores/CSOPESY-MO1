@@ -38,4 +38,6 @@ class Process {
         
         void setRunning();
         void setFinished();
+
+        void logInstruction(int coreId);
 };
