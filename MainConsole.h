@@ -10,6 +10,8 @@ public:
     void onEnabled() override;
     void display() override;
     void process() override;
+
+    bool initialized = 0;
 private:
     enum class StringCode {
         exit,

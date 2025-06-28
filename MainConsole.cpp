@@ -55,18 +55,36 @@ void MainConsole::process(){
             break;
         case StringCode::initialize:
             ConsoleManager::get_instance()->initialize_console();
+            this->initialized = 1;
             break;
         case StringCode::screen:
-            std::cout << "screed command recognized. Doing something.\n";
+            if(this->initialized == 1){
+                ConsoleManager::get_instance()->switch_console("SCREEN_VIEW");
+            }else{
+                std::cout << "Please use initialized command before proceeding!. \n";
+            }
             break;
         case StringCode::scheduler_test:
-            ConsoleManager::get_instance()->switch_console(SCHEDULE);
+            if(this->initialized == 1){
+                ConsoleManager::get_instance()->switch_console(SCHEDULE);
+            }else{
+                std::cout << "Please use initialized command before proceeding!. \n";
+            }
             break;
         case StringCode::scheduler_stop:
-            std::cout << "scheduler-stop command recognized. Doing something.\n";
+            if(this->initialized == 1){
+                std::cout << "scheduler-stop command recognized. Doing something.\n";
+            }else{
+                std::cout << "Please use initialized command before proceeding!. \n";
+            }
+            
             break;
         case StringCode::report_util:
-            std::cout << "report-util command recognized. Doing something.\n";
+            if(this->initialized == 1){
+                std::cout << "report-util command recognized. Doing something.\n";
+            }else{
+                std::cout << "Please use initialized command before proceeding!. \n";
+            }
             break;
         case StringCode::unknown:
             std::cout << "error: unknown command. Please type a valid command.\n";

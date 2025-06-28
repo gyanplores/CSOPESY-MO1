@@ -1,5 +1,5 @@
 #include "ConsoleManager.h"
-
+// g++ -std=c++20 Console.cpp ConsoleManager.cpp Core.cpp main.cpp MainConsole.cpp Process.cpp SchedulingConsole.cpp Screen.cpp -o main
 int main(){
     bool running = true;
     ConsoleManager::initialize_console_manager();

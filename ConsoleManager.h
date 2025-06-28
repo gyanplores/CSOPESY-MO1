@@ -28,7 +28,7 @@ public:
     void switch_console(String console_name);
 
     //void register_screen(std::shared_ptr<Screen> screen_ref);
-    //void switch_screen(String screen_name);
+    void switch_screen(String screen_name);
     //void unregister_screen(String screen_name);
 
     void return_console();
