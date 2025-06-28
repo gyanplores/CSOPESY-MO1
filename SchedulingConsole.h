@@ -11,6 +11,19 @@
 #include <memory>
 
 class SchedulingConsole : public Console {
+<<<<<<< Updated upstream
+=======
+private:
+    std::thread schedulerThread;
+    bool isSchedulerRunning = false;
+    std::vector<Process> processList;
+    std::mutex processMutex;
+    std::vector<int> coreUtilization;
+    std::mutex utilizationMutex;
+
+    int quantum = 2;
+
+>>>>>>> Stashed changes
 public:
     SchedulingConsole();
     ~SchedulingConsole();

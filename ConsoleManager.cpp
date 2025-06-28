@@ -60,10 +60,17 @@ ConsoleManager::ConsoleManager() {
     auto scheduling_console = std::make_shared<SchedulingConsole>();
     // auto memory_console   = std::make_shared<MemoryConsole>();
 
+<<<<<<< Updated upstream
     console_table[MAIN]     = main_console;
     // console_table[MARQUEE] = marquee_console;
     console_table[SCHEDULE] = scheduling_console;
     // console_table[MEMORY]  = memory_console;
+=======
+    this->console_table[MAIN] = main_console;
+    this->console_table[SCHEDULE] = scheduling_console;
+    this->console_table["SCHEDULING_CONSOLE"] = scheduling_console;
+    this->console_table["SCREEN_VIEW"] = screen_console;
+>>>>>>> Stashed changes
 
     switch_console(MAIN);
 }

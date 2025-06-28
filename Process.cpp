@@ -3,12 +3,32 @@
 #include <ctime>
 #include <iomanip>
 
+<<<<<<< Updated upstream
 Process::Process(int i, int n)
   : id(i), maxPrints(n), printedCount(0), state(READY)
 {}
 
 Process::~Process() {
     if (logFile.is_open()) logFile.close();
+=======
+Process::Process(int i, int n) : id(i), instruction_lines_max(n) {
+    time(&timestamp);
+
+    burstTime = instruction_lines_max;
+    remainingTime = burstTime;
+}
+
+//return a vector of processes for week 6 homework
+
+std::vector<Process> Process::print_processes() {
+    static std::vector<Process> v;
+
+    for (int i = 0; i < 10; i++){
+        v.push_back(Process(i, 100));
+    }
+
+    return v;
+>>>>>>> Stashed changes
 }
 
 void Process::openLogFile() {

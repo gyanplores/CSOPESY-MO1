@@ -53,7 +53,15 @@ void MainConsole::process() {
               << "  report-util     - Run report utility\n";
             break;
         case StringCode::scheduler_test:
+<<<<<<< Updated upstream
             ConsoleManager::get_instance()->switch_console(SCHEDULE);
+=======
+            if(this->initialized == 1){
+                ConsoleManager::get_instance()->switch_console("SCHEDULING_CONSOLE");
+            }else{
+                std::cout << "Please use initialized command before proceeding!. \n";
+            }
+>>>>>>> Stashed changes
             break;
         case StringCode::scheduler_stop:
             // if typed here, no effect; actual stop done inside SchedulingConsole

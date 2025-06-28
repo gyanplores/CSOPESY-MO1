@@ -9,8 +9,15 @@ public:
     Process(int id, int maxPrints);
     ~Process();
 
+<<<<<<< Updated upstream
     // called by a worker; writes one entry, returns true when done
     bool executePrint(int coreId);
+=======
+        int burstTime;
+        int remainingTime;
+
+        time_t timestamp;
+>>>>>>> Stashed changes
 
     // open the per-process log file
     void openLogFile();
