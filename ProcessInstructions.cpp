@@ -149,6 +149,7 @@ String ProcessInstructions::runSubtract(std::vector<Var> memory){
     }
 }
 
+
 std::vector<ProcessInstructions> ProcessInstructions::processForLoop(std::vector<ProcessInstructions> block, int num ){
     if (block[0].instruction_type == "FOR"){
         block = processForLoop(block, block[0].constant1);

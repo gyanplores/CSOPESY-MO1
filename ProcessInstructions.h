@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <cstdint>
+
 
 using String = std::string;
 
@@ -12,7 +14,9 @@ class ProcessInstructions {
         String var1 = "";
         String var2 = "";
         String var3 = "";
+
         String constant_string = "Hello World";
+
         uint16_t constant1 = 0;
         uint16_t constant2 = 0;
 
