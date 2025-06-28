@@ -15,10 +15,14 @@ const String SCHEDULE = "SCHEDULE_CONSOLE";
 class ConsoleManager{
 public:
     typedef std::unordered_map<String, std::shared_ptr<Console>> ConsoleTable;
+    typedef std::unordered_map<String, std::shared_ptr<Screen>> ScreenTable;
 
     static ConsoleManager* get_instance();
+    ConsoleTable& getConsoleTable();
     static void initialize_console_manager();
     static void destroy_console_manager();
+
+    void initialize_console();
 
     void draw_console() const;
     void process() const;
@@ -34,6 +38,16 @@ public:
 
     HANDLE getConsoleHandle() const;
 
+    // Screen management
+    void register_screen(std::shared_ptr<Screen> screen);
+    void unregister_screen(const String& screen_name);
+    void switch_screen(const String& screen_name);
+    void return_screen();
+
+    std::shared_ptr<Screen> getCurrentScreen() const;
+    ScreenTable& getScreenTable();
+
+
     private: 
     ConsoleManager();
     ~ConsoleManager() = default;
@@ -48,4 +62,9 @@ public:
 
     std::shared_ptr<Console> curr_console;
     std::shared_ptr<Console> prev_console;
+
+    ScreenTable screen_table;
+    
+    std::shared_ptr<Screen> curr_screen = nullptr;
+    std::shared_ptr<Screen> prev_screen = nullptr;
 };

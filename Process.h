@@ -4,6 +4,13 @@
 #include <ctime>
 #include <string>
 
+using String = std::string;
+
+struct InstructionLog {
+    std::string timestamp;
+    int coreId;
+    std::string message;
+};
 
 class Process {
     public:
@@ -16,20 +23,27 @@ class Process {
     public:
         int id; //ID of process
         int instruction_lines_max; //all lines of instructions of process - defaults to print currently
-        int instruction_lines_current = 0; // currentline of the process, updates automatically
+        int instruction_lines_current = 0;
 
         int current_core;
 
-        time_t timestamp; //Is set when its declared and updates when is being processed by core
+        int burstTime;
+        int remainingTime;
+
+        time_t timestamp;
 
         ProcessState state = READY;
+
+        std::vector<InstructionLog> instructionLogs;
+        std::vector<String> var_names;
 
     public:
         Process(int i, int n);
         std::string setCurrentTime();
-        static std::vector<Process> print_processes(); //static method that return the 10 process we need for the homework
+        static std::vector<Process> print_processes();
         
-        //setter function for the state variable
         void setRunning();
         void setFinished();
+
+        void logInstruction(int coreId);
 };
