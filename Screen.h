@@ -10,7 +10,7 @@ public:
     void display() override;
     void process() override;
 
-private:
+protected:
     void printProcess(std::string processName);
     void printProcess() const;
     void generateFile() const;
