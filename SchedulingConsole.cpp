@@ -12,7 +12,21 @@
 SchedulingConsole::SchedulingConsole() : Console("SCHEDULING_CONSOLE") {}
 
 void SchedulingConsole::onEnabled() {
-    std::cout << "[Scheduler] FCFS Scheduler Console Enabled.\n";
+    std::lock_guard<std::mutex> lock(processMutex);
+    processList.clear();
+
+    for (int i = 0; i < 5; ++i) {
+        Process p(i, 0);
+        p.burstTime = 5 + i;
+        p.remainingTime = p.burstTime;
+        processList.push_back(p);
+    }
+
+    std::cout << "[Scheduler] Round Robin Scheduler initialized with dummy processes.\n";
+
+    stopRequested = false;
+    schedulerThread = std::thread(&SchedulingConsole::runSchedulerInBackground, this);
+    schedulerThread.detach();
 }
 
 void SchedulingConsole::display() {
@@ -21,38 +35,48 @@ void SchedulingConsole::display() {
 
 void SchedulingConsole::runSchedulerInBackground() {
     isSchedulerRunning = true;
-    processList.clear();
-
-    std::vector<CORE> cores;
-    for (int i = 0; i < CORE::N_CORE; i++) {
-        cores.emplace_back(i);
-    }
-
-    coreUtilization.resize(CORE::N_CORE, 0);
 
     {
         std::lock_guard<std::mutex> lock(processMutex);
-        processList = Process::print_processes(); // Shared reference for live updates
+        processList = Process::print_processes();
+
+        for (auto& p : processList) {
+            p.burstTime = 5 + p.id;
+            p.remainingTime = p.burstTime;
+        }
     }
 
-    std::vector<std::thread> threads;
-    int i = 0;
-    while (i < processList.size()) {
-        for (int j = 0; j < CORE::N_CORE && i < processList.size(); j++, i++) {
-            threads.emplace_back(&CORE::run_print, &cores[j], std::ref(processList[i]));
+    while (isSchedulerRunning && !stopRequested) {
+        std::lock_guard<std::mutex> lock(processMutex);
+        if (processList.empty()) break;
 
-            {
-                std::lock_guard<std::mutex> lock(utilizationMutex); 
-                coreUtilization[j]++; 
-            }
+        Process p = processList.front();
+        processList.erase(processList.begin());
+
+        int runTime = std::min(quantum, p.remainingTime);
+        p.remainingTime -= runTime;
+
+        std::cout << "[CPU] Running P" << p.id << " for " << runTime << " units\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(runTime * 100));
+
+        if (stopRequested) {
+            std::cout << "[Scheduler] Stopping scheduler as requested.\n";
+            break;
         }
 
-        for (auto& t : threads) t.join();
-        threads.clear();
+        if (p.remainingTime > 0) {
+            processList.push_back(p);
+        } else {
+            std::cout << "[DONE] P" << p.id << " completed.\n";
+        }
     }
 
+    std::cout << "[Scheduler] Round Robin scheduling completed.\n";
     isSchedulerRunning = false;
-    std::cout << "\n[Scheduler] All processes finished in background.\n";
+}
+
+void SchedulingConsole::stopScheduler() {
+    stopRequested = true;
 }
 
 void SchedulingConsole::process() {
@@ -64,14 +88,19 @@ void SchedulingConsole::process() {
             std::cout << "[Scheduler] FCFS is already running in the background.\n";
         } else {
             std::cout << "[Scheduler] Starting FCFS Scheduler in background...\n";
+            stopRequested = false;
             schedulerThread = std::thread(&SchedulingConsole::runSchedulerInBackground, this);
-            schedulerThread.detach(); // Don't block the main console
+            schedulerThread.detach();
+        }
+    } else if (cmd == "scheduler-stop") {
+        if (isSchedulerRunning) {
+            stopScheduler();
+        } else {
+            std::cout << "[Scheduler] Scheduler is not running.\n";
         }
     } else if (cmd == "exit") {
         ConsoleManager::get_instance()->switch_console(MAIN);
-        
-    } 
-    else if (cmd == "print") {
+    } else if (cmd == "print") {
         std::cout << "[Scheduler] Starting print simulation in foreground...\n";
 
         std::vector<Process> print_process = Process::print_processes();
@@ -96,8 +125,7 @@ void SchedulingConsole::process() {
         }
 
         std::cout << "[Scheduler] All print logs written to Output_files/ directory.\n";
-    }
-    else {
+    } else {
         std::cout << "Unknown command.\n";
     }
 }

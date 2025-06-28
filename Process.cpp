@@ -3,7 +3,12 @@
 #include <vector>
 #include <string>
 
-Process::Process(int i, int n) : id(i), instruction_lines_max(n) { time(&timestamp); }
+Process::Process(int i, int n) : id(i), instruction_lines_max(n) {
+    time(&timestamp);
+
+    burstTime = instruction_lines_max;
+    remainingTime = burstTime;
+}
 
 //return the a vector of processes for week 6 homework
 

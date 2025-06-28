@@ -27,6 +27,9 @@ class Process {
 
         int current_core;
 
+        int burstTime;
+        int remainingTime;
+
         time_t timestamp;
 
         ProcessState state = READY;
