@@ -17,6 +17,7 @@ private:
         help,
         initialize,
         screen,
+        process,
         scheduler_test,
         scheduler_stop,
         report_util,

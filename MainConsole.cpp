@@ -1,5 +1,6 @@
 #include "MainConsole.h"
 #include "ConsoleManager.h"
+#include "ProcessScreen.h"
 
 #include <iostream>
 #include <string>
@@ -29,6 +30,25 @@ void MainConsole::process(){
 
     std::getline(std::cin, command); // Takes commands with spaces into consideration
 
+    if (command.rfind("screen -s", 0) == 0 && command.length() > 10) {
+        std::string process_name = command.substr(10); // Extract process name
+
+        // Switch to ProcessScreen
+        ConsoleManager::get_instance()->switch_console("PROC");
+
+        // Pass process name to ProcessScreen
+        auto proc_screen = std::dynamic_pointer_cast<ProcessScreen>(
+            ConsoleManager::get_instance()->getConsoleTable().at("PROC")
+        );
+        if (proc_screen) {
+            proc_screen->setProcessName(process_name);
+        } else {
+            std::cout << "Could not access ProcessScreen.\n";
+        }
+
+        return; // Exit early
+    }
+
     tokenizeCommand(command, setcommand, name); //  Tokenize command
     
     // std::cout << "Command is: " << setcommand << " Name is:" << name << "\n\n"; //  For Testing
@@ -57,7 +77,7 @@ void MainConsole::process(){
             ConsoleManager::get_instance()->initialize_console();
             break;
         case StringCode::screen:
-            std::cout << "screed command recognized. Doing something.\n";
+            ConsoleManager::get_instance()->switch_console("UTIL");
             break;
         case StringCode::scheduler_test:
             ConsoleManager::get_instance()->switch_console(SCHEDULE);
@@ -66,7 +86,7 @@ void MainConsole::process(){
             std::cout << "scheduler-stop command recognized. Doing something.\n";
             break;
         case StringCode::report_util:
-            std::cout << "report-util command recognized. Doing something.\n";
+            ConsoleManager::get_instance()->switch_console("UTIL");
             break;
         case StringCode::unknown:
             std::cout << "error: unknown command. Please type a valid command.\n";
@@ -96,7 +116,7 @@ MainConsole::StringCode MainConsole::hashString(const std::string& str) {
     if (str == "clear") return StringCode::clear;
     if (str == "help") return StringCode::help;
     if (str == "initialize") return StringCode::initialize;
-    if (str == "screen -r") return StringCode::screen;
+    if (str == "screen-ls") return StringCode::screen;
     if (str == "scheduler-test") return StringCode::scheduler_test;
     if (str == "scheduler-stop") return StringCode::scheduler_stop;
     if (str == "report-util") return StringCode::report_util;

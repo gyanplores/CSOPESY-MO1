@@ -97,9 +97,6 @@ void SchedulingConsole::process() {
 
         std::cout << "[Scheduler] All print logs written to Output_files/ directory.\n";
     }
-    else if (cmd == "screen -ls") {
-        ConsoleManager::get_instance()->switch_console("SCREEN_VIEW");
-    }
     else {
         std::cout << "Unknown command.\n";
     }
