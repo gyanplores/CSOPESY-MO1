@@ -11,6 +11,10 @@ public:
     inline static int N_CORE = 4;              // Declared here so it can be used below
     inline static int DELAY = 100;                // Sleep duration
 
+    //READY QUEYE
+
+    static std::vector<Process> RQ;  
+
 private:
     int id;
 

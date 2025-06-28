@@ -8,6 +8,14 @@
 #include <sstream>
 #include <Windows.h>
 #include <string>
+#include <thread>
+
+void tick_counter() {
+    while(true){
+        tick++;
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+}
 
 
 ConsoleManager* ConsoleManager::sharedInstance = nullptr;
@@ -40,6 +48,36 @@ void ConsoleManager::initialize_console(){
             CORE::N_CORE = value;
             std::cout << "[Config] Set number of cores to " << CORE::N_CORE << "\n";
         }
+        if (key == "quantum-cycles") {
+            int value;
+            iss >> value;
+            quantum_cycles = value;
+            std::cout << "[Config] Set quantum cycles to " << CORE::N_CORE << "\n";
+        }
+        if (key == "batch-process-freq") {
+            int value;
+            iss >> value;
+            batch_process_freq = value;
+            std::cout << "[Config] Set batch-process-freq to " << CORE::N_CORE << "\n";
+        }
+        if (key == "min-ins") {
+            int value;
+            iss >> value;
+            min_ins = value;
+            std::cout << "[Config] Set min_ins to " << CORE::N_CORE << "\n";
+        }
+        if (key == "min-ins") {
+            int value;
+            iss >> value;
+            min_ins = value;
+            std::cout << "[Config] Set min_ins to " << CORE::N_CORE << "\n";
+        }
+        if (key == "max-ins") {
+            int value;
+            iss >> value;
+            max_ins = value;
+            std::cout << "[Config] Set max_ins to " << CORE::N_CORE << "\n";
+        }
         if (key == "delay-per-exec"){
             int value;
             iss >> value;
@@ -47,6 +85,9 @@ void ConsoleManager::initialize_console(){
             std::cout << "[Config] set delay to " << CORE::DELAY << "\n";
         }
     }
+
+    std::thread t(tick_counter);
+    t.join();
 
     file.close();
 }

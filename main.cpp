@@ -1,6 +1,10 @@
 #include "ConsoleManager.h"
 
-uint64_t tick = 0;
+void tick_counter() {
+    while(true){
+        tick++;
+    }
+}
 
 int main(){
     bool running = true;
