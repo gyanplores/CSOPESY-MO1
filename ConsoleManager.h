@@ -5,6 +5,14 @@
 #include <Windows.h>
 #include <string>
 #include <memory>
+#include <thread>
+
+extern uint64_t tick;
+extern uint64_t quantum_cycles;
+extern uint64_t batch_process_freq;
+extern uint64_t min_ins;
+extern uint64_t max_ins;
+extern uint64_t delate_per_exec;
 
 using String = std::string;
 

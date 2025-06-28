@@ -1,5 +1,11 @@
 #include "ConsoleManager.h"
 
+void tick_counter() {
+    while(true){
+        tick++;
+    }
+}
+
 int main(){
     bool running = true;
     ConsoleManager::initialize_console_manager();

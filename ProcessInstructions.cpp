@@ -149,4 +149,20 @@ String ProcessInstructions::runSubtract(std::vector<Var> memory){
     }
 }
 
+
+std::vector<ProcessInstructions> ProcessInstructions::processForLoop(std::vector<ProcessInstructions> block, int num ){
+    if (block[0].instruction_type == "FOR"){
+        block = processForLoop(block, block[0].constant1);
+
+    }
+    else{
+        for (int i = 0; i < block[0].constant1; i++){
+            block.push_back(ProcessInstructions());
+            block[block.size()].instruction_type = block[0].constant_string;
+        }
+    }
+    block.erase(block.begin());
+    return block;
+}
+
 void runSleep();
