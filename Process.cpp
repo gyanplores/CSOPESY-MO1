@@ -3,7 +3,12 @@
 #include <vector>
 #include <string>
 
-Process::Process(int i, int n) : id(i), instruction_lines_max(n) { time(&timestamp); }
+Process::Process(int i, int n) : id(i), instruction_lines_max(n) {
+    time(&timestamp);
+
+    burstTime = instruction_lines_max;
+    remainingTime = burstTime;
+}
 
 //return the a vector of processes for week 6 homework
 
@@ -31,4 +36,18 @@ std::string Process::setCurrentTime(){
     std::string thetime = ctime(&t);
     thetime.erase(thetime.find('\n', 0), 1);
     return thetime;
+}
+
+void Process::logInstruction(int coreId) {
+    time_t now;
+    time(&now);
+    char timeBuffer[80];
+    strftime(timeBuffer, sizeof(timeBuffer), "%m/%d/%Y %I:%M:%S%p", localtime(&now));
+
+    InstructionLog log = {
+        timeBuffer,
+        coreId
+    };
+
+    instructionLogs.push_back(log);
 }

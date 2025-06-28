@@ -1,5 +1,7 @@
 #include "MainConsole.h"
 #include "ConsoleManager.h"
+#include "SchedulingConsole.h"
+#include "ProcessScreen.h"
 
 #include <iostream>
 #include <string>
@@ -26,23 +28,42 @@ void MainConsole::display(){
 
 void MainConsole::process(){
     std::string command, setcommand, name;
-
     std::getline(std::cin, command); // Takes commands with spaces into consideration
 
-    tokenizeCommand(command, setcommand, name); //  Tokenize command
-    
-    // std::cout << "Command is: " << setcommand << " Name is:" << name << "\n\n"; //  For Testing
+    if (command.rfind("screen -s", 0) == 0 && command.length() > 10) {
+        if(this->initialized == 1){
+            std::string process_name = command.substr(10); // Extract process name
+
+            // Switch to ProcessScreen
+            ConsoleManager::get_instance()->switch_console("PROC");
+
+            // Pass process name to ProcessScreen
+            auto proc_screen = std::dynamic_pointer_cast<ProcessScreen>(
+                ConsoleManager::get_instance()->getConsoleTable().at("PROC")
+            );
+            if (proc_screen) {
+                proc_screen->setProcessName(process_name);
+            } else {
+                std::cout << "Could not access ProcessScreen.\n";
+            }
+
+            return; // Exit early
+        } else {
+            std::cout << "Please use initialize command first..\n"; 
+        }
+    }
+
+    tokenizeCommand(command, setcommand, name); // Tokenize command
 
     switch (hashString(setcommand)) {
         case StringCode::exit:
-            ConsoleManager::get_instance()->exit_application();  // Exit program
+            ConsoleManager::get_instance()->exit_application();
             break;
         case StringCode::clear:
-            system("cls");  // Clear screen (Windows-specific)
-            onEnabled(); // Reprint Header
+            system("cls");
+            onEnabled();
             break;
         case StringCode::help:
-            // Display available commands
             std::cout << "Available commands:\n"
                       << "  exit            - Quit the program\n"
                       << "  clear           - Clear the screen\n"
@@ -54,19 +75,44 @@ void MainConsole::process(){
                       << "  report-util     - Run report utility\n";
             break;
         case StringCode::initialize:
-            std::cout << "initialize command recognized. Doing something.\n";
+            ConsoleManager::get_instance()->initialize_console();
+            this->initialized = 1;
             break;
         case StringCode::screen:
-            std::cout << "screed command recognized. Doing something.\n";
+            if(this->initialized == 1){
+                ConsoleManager::get_instance()->switch_console("UTIL");
+            } else {
+                std::cout << "Please use initialize command first..\n"; 
+            }
             break;
         case StringCode::scheduler_test:
-            std::cout << "scheduler-test command recognized. Doing something.\n";
+            if(this->initialized == 1){
+                ConsoleManager::get_instance()->switch_console("SCHEDULING_CONSOLE");
+            } else {
+                std::cout << "Please use initialized command before proceeding!\n";
+            }
             break;
         case StringCode::scheduler_stop:
-            std::cout << "scheduler-stop command recognized. Doing something.\n";
+            if (this->initialized == 1) {
+                auto sched_console = std::dynamic_pointer_cast<SchedulingConsole>(
+                    ConsoleManager::get_instance()->getConsoleTable().at("SCHEDULING_CONSOLE")
+                );
+                if (sched_console) {
+                    sched_console->stopScheduler();
+                    std::cout << "[Main] Sent stop request to scheduler.\n";
+                } else {
+                    std::cout << "Error: Could not access SchedulingConsole.\n";
+                }
+            } else {
+                std::cout << "Please use initialize command first..\n"; 
+            }
             break;
         case StringCode::report_util:
-            std::cout << "report-util command recognized. Doing something.\n";
+            if(this->initialized == 1){
+                ConsoleManager::get_instance()->switch_console("UTIL");
+            } else {
+                std::cout << "Please use initialize command first..\n"; 
+            }
             break;
         case StringCode::unknown:
             std::cout << "error: unknown command. Please type a valid command.\n";
@@ -84,9 +130,9 @@ void MainConsole::tokenizeCommand(const std::string& command, std::string& setco
     }
 
     if(tokens.size() >= 2){
-        setcommand = tokens[0] + " " + tokens[1];   //  Specifically made for "screen -r"
+        setcommand = tokens[0] + " " + tokens[1];
         name = tokens[2];
-    }else{
+    } else {
         setcommand = tokens[0];
     }
 }
@@ -96,9 +142,9 @@ MainConsole::StringCode MainConsole::hashString(const std::string& str) {
     if (str == "clear") return StringCode::clear;
     if (str == "help") return StringCode::help;
     if (str == "initialize") return StringCode::initialize;
-    if (str == "screen -r") return StringCode::screen;
+    if (str == "screen-ls") return StringCode::screen;
     if (str == "scheduler-test") return StringCode::scheduler_test;
     if (str == "scheduler-stop") return StringCode::scheduler_stop;
     if (str == "report-util") return StringCode::report_util;
-    return StringCode::unknown;  // Return unknown if command doesn't match any known ones
+    return StringCode::unknown;
 }

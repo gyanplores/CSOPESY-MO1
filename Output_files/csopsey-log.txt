@@ -1,0 +1,28 @@
+CPU utilization: 
+Cores used: 4
+Cores available: 0
+-----------------------------
+Running processes:
+
+Finished processes:
+process00 (Thu Jun 26 18:18:12 2025
+) Finished 100 / 100
+process01 (Thu Jun 26 18:18:12 2025
+) Finished 100 / 100
+process02 (Thu Jun 26 18:18:12 2025
+) Finished 100 / 100
+process03 (Thu Jun 26 18:18:12 2025
+) Finished 100 / 100
+process04 (Thu Jun 26 18:18:23 2025
+) Finished 100 / 100
+process05 (Thu Jun 26 18:18:23 2025
+) Finished 100 / 100
+process06 (Thu Jun 26 18:18:23 2025
+) Finished 100 / 100
+process07 (Thu Jun 26 18:18:23 2025
+) Finished 100 / 100
+process08 (Thu Jun 26 18:18:34 2025
+) Finished 100 / 100
+process09 (Thu Jun 26 18:18:34 2025
+) Finished 100 / 100
+--------------------------------------------
