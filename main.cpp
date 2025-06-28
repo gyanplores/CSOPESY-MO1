@@ -1,5 +1,7 @@
 #include "ConsoleManager.h"
 
+uint64_t tick = 0;
+
 int main(){
     bool running = true;
     ConsoleManager::initialize_console_manager();

@@ -1,8 +1,11 @@
 #pragma once
 
+#include "ProcessInstructions.h"
+
 #include <vector>
 #include <ctime>
 #include <string>
+
 
 using String = std::string;
 
@@ -22,17 +25,18 @@ class Process {
         };
     public:
         int id; //ID of process
-        int instruction_lines_max; //all lines of instructions of process - defaults to print currently
+        int instruction_lines_max; //all lines of instructions of process - check threads.size
         int instruction_lines_current = 0;
 
         int current_core;
 
-        time_t timestamp;
+        time_t timestamp; //date created
+        time_t timestamp_last; //date last running
 
         ProcessState state = READY;
 
         std::vector<InstructionLog> instructionLogs;
-        std::vector<String> var_names;
+        std::vector<ProcessInstructions> threads;
 
     public:
         Process(int i, int n);
