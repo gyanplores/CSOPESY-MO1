@@ -56,7 +56,7 @@ void SchedulingConsole::runSchedulerInBackground() {
         int runTime = std::min(quantum, p.remainingTime);
         p.remainingTime -= runTime;
 
-        std::cout << "[CPU] Running P" << p.id << " for " << runTime << " units\n";
+       
         std::this_thread::sleep_for(std::chrono::milliseconds(runTime * 100));
 
         if (stopRequested) {
