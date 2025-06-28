@@ -23,6 +23,9 @@ private:
 
     int quantum = 2;
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 public:
     SchedulingConsole();

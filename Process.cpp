@@ -4,6 +4,7 @@
 #include <iomanip>
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 Process::Process(int i, int n)
   : id(i), maxPrints(n), printedCount(0), state(READY)
 {}
@@ -14,6 +15,11 @@ Process::~Process() {
 Process::Process(int i, int n) : id(i), instruction_lines_max(n) {
     time(&timestamp);
 
+=======
+Process::Process(int i, int n) : id(i), instruction_lines_max(n) {
+    time(&timestamp);
+
+>>>>>>> Stashed changes
     burstTime = instruction_lines_max;
     remainingTime = burstTime;
 }

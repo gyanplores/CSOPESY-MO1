@@ -16,6 +16,9 @@ public:
         int burstTime;
         int remainingTime;
 
+        int burstTime;
+        int remainingTime;
+
         time_t timestamp;
 >>>>>>> Stashed changes
 
