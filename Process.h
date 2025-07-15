@@ -27,8 +27,8 @@ class Process {
         int instruction_lines_max; //all lines of instructions of process - check threads.size
         int instruction_lines_current = 0;
 
-        int current_core;
-        int current_cycle; //used for round robin
+        int current_core = -1;
+        int current_cycle = 0; //used for round robin
 
         inline static int min_ins;
         inline static int max_ins;

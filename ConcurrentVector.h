@@ -37,8 +37,33 @@ public:
     }
 
     bool empty(){
+        std::lock_guard<std::mutex> lock(mtx);
         return vec.empty();
     }
 
+    void setCore(int i, int j){
+        std::lock_guard<std::mutex> lock(mtx);
+        vec[i].current_core = j;
+    }
+
+    void changeAt(int i, Process p){
+        std::lock_guard<std::mutex> lock(mtx);
+        vec[i] = p;
+    }
+
+    time_t getTimeStampLast(int i){
+        std::lock_guard<std::mutex> lock(mtx);
+        return vec[i].timestamp_last;
+    }
+
+    void resetCycle(int i){
+        std::lock_guard<std::mutex> lock(mtx);
+        vec[i].current_cycle = 0;
+    }
+
+    std::vector<Process> duplicate(){
+        std::lock_guard<std::mutex> lock(mtx);
+        return vec;
+    }
     
 };

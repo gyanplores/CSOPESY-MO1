@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Process.h"
+#include "ConcurrentVectorBool.h"
+#include "ConcurrentVector.h"
 
 #include <vector>
 #include <ctime>

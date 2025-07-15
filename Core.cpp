@@ -19,8 +19,9 @@ void coreRunning(){
 
                 //Move instruction line up
                 if(CORE::freeCore.at(i) == 1){
-                    CORE::runningProcess.incrementcurline();
+                    CORE::runningProcess.incrementcurline(i);
                     CORE::runningProcess.at(i).setCurrentTime();
+                    //std::cout<<CORE::runningProcess.at(i).current_cycle<<std::endl;
                 }
 
                 //hit max instruction line
@@ -30,7 +31,7 @@ void coreRunning(){
                     RQ::FinishedQ.push_back(CORE::runningProcess.at(i));
                 }
                 //if time cycle reached
-                else if (CORE::runningProcess.at(i).current_cycle == CORE::CYCLE){
+                else if (CORE::runningProcess.at(i).current_cycle >= CORE::CYCLE){
                     CORE::runningProcess.at(i).setReady();
                     CORE::freeCore.setFree(i);
                     RQ::ProcessQ.push_back(CORE::runningProcess.at(i));
@@ -49,8 +50,8 @@ void CORE::initializeCores(){
         CORE::freeCore.push_back(0);
         CORE::runningProcess.push_back(Process(-1));
     }
-    //std::thread t(coreRunning);
-    //t.detach();
+    std::thread t(coreRunning);
+    t.detach();
 }
 
 void CORE::run_print(Process& p) {

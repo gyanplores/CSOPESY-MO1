@@ -1,4 +1,4 @@
-clock-speed 1000
+clock-speed 200
 num-cpu 2
 scheduler rr
 quantum-cycles 4

@@ -32,4 +32,3 @@ public:
     void set_CoreN(int n);
     void run_print(Process& p);
 };
-m

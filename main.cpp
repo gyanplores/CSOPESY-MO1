@@ -48,42 +48,46 @@ void print_ls(){
     std::cout<< "\n---------------------------------------------"<<std::endl;
     std::cout<< "Running Processes"<<std::endl;
     for (int i = 0; i < CORE::runningProcess.size(); i++){
-        if (CORE::runningProcess[i].state == 1){
-            char* timeStr = std::ctime(&(CORE::runningProcess[i].timestamp_last));
+        //CORE::runningProcess.at(i).state == 1
+        if (true){
+            time_t stamp = CORE::runningProcess.getTimeStampLast(i);
+            char* timeStr = std::ctime(&stamp);
             timeStr[strcspn(timeStr, "\n")] = '\0';
 
-            std::cout<<"CORE "<<CORE::runningProcess[i].current_core<<": "<<"\t";
-            std::cout<<"process"<<CORE::runningProcess[i].id<<"\t"<<timeStr<<"\t";
-            std::cout<<"READY"<<"\t"<<CORE::runningProcess[i].instruction_lines_current<<" / ";
-            std::cout<<CORE::runningProcess[i].instruction_lines_max<<std::endl;
+            std::cout<<"CORE "<<CORE::runningProcess.at(i).current_core<<": "<<"\t";
+            std::cout<<"process"<<CORE::runningProcess.at(i).id<<"\t"<<timeStr<<"\t";
+            std::cout<<"READY"<<"\t"<<CORE::runningProcess.at(i).instruction_lines_current<<" / ";
+            std::cout<<CORE::runningProcess.at(i).instruction_lines_max<<std::endl;
         }
     }
     std::cout<<std::endl;
 
     std::cout<< "Finished Processes"<<std::endl;
     for (int i = 0; i < RQ::ProcessQ.size(); i++){
-        if (RQ::ProcessQ[i].state == 3){
-            char* timeStr = std::ctime(&(RQ::ProcessQ[i].timestamp_last));
+        if (RQ::ProcessQ.at(i).state == 3){
+            time_t stamp = CORE::runningProcess.getTimeStampLast(i);
+            char* timeStr = std::ctime(&stamp);
             timeStr[strcspn(timeStr, "\n")] = '\0';
 
 
-            std::cout<<"process"<<RQ::ProcessQ[i].id<<"\t"<<timeStr<<"\t";
-            std::cout<<"READY"<<"\t"<<RQ::ProcessQ[i].instruction_lines_current<<" / ";
-            std::cout<<RQ::ProcessQ[i].instruction_lines_max<<std::endl;
+            std::cout<<"process"<<RQ::ProcessQ.at(i).id<<"\t"<<timeStr<<"\t";
+            std::cout<<"READY"<<"\t"<<RQ::ProcessQ.at(i).instruction_lines_current<<" / ";
+            std::cout<<RQ::ProcessQ.at(i).instruction_lines_max<<std::endl;
         }
     }
     std::cout<<std::endl;
 
     std::cout<< "Ready Processes"<<std::endl;
     for (int i = 0; i < RQ::ProcessQ.size(); i++){
-        if (RQ::ProcessQ[i].state == 0){
-            char* timeStr = std::ctime(&(RQ::ProcessQ[i].timestamp_last));
+        if (RQ::ProcessQ.at(i).state == 0){
+            time_t stamp = CORE::runningProcess.getTimeStampLast(i);
+            char* timeStr = std::ctime(&stamp);
             timeStr[strcspn(timeStr, "\n")] = '\0';
 
 
-            std::cout<<"process"<<RQ::ProcessQ[i].id<<"\t"<<timeStr<<"\t";
-            std::cout<<"READY"<<"\t"<<RQ::ProcessQ[i].instruction_lines_current<<" / ";
-            std::cout<<RQ::ProcessQ[i].instruction_lines_max<<std::endl;
+            std::cout<<"process"<<RQ::ProcessQ.at(i).id<<"\t"<<timeStr<<"\t";
+            std::cout<<"READY"<<"\t"<<RQ::ProcessQ.at(i).instruction_lines_current<<" / ";
+            std::cout<<RQ::ProcessQ.at(i).instruction_lines_max<<std::endl;
         }
     }
     std::cout<<std::endl;
@@ -155,6 +159,11 @@ int main(){
             CORE::DELAY = value_int;
             std::cout << "[Config] set delay to " << CORE::DELAY << "\n";
         }
+        if (key == "delay-per-exec"){
+            value_int = stoi(value);
+            CORE::DELAY = value_int;
+            std::cout << "[Config] set delay to " << CORE::DELAY << "\n";
+        }
     }
 
     std::thread t(tick_counter);
@@ -183,7 +192,8 @@ int main(){
             std::cout<<"Stopping test batch generation."<<std::endl;
         }
         else if (input == "screen-ls"){
-            print_ls();
+            std::thread print(print_ls);
+            print.join();
         }
 
         input = "";
