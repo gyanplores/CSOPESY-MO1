@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <thread>
+#include <iostream>
 
 extern uint64_t tick;
 extern uint64_t quantum_cycles;

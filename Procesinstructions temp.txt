@@ -15,6 +15,7 @@ String ProcessInstructions::runInstruction(std::vector<Var> memory){
     else if (this->instruction_type == "DECLARE"){
         return runDeclare(memory);
     }
+    return "OOPS";
 }
 
 int ProcessInstructions::findVar(String varname, std::vector<Var> memory){
@@ -41,6 +42,7 @@ String ProcessInstructions::runPrint(std::vector<Var> memory){
             return std::to_string(this->constant1).append(this->constant_string);
             break;
     }
+    return constant_string;
 }
 
 String ProcessInstructions::runDeclare(std::vector<Var> memory){
@@ -58,12 +60,11 @@ void ProcessInstructions::runDeclareBlank(std::vector<Var> memory){
 
 String ProcessInstructions::runAdd(std::vector<Var> memory){
     String log = "Added ";
+    int i = findVar(this->var1, memory);
+    int j = findVar(this->var2, memory);
+    int k = findVar(this->var3, memory);    
     switch(this->instruction_variation) {
         case 0: //2 variables added
-
-            int i = findVar(this->var1, memory);
-            int j = findVar(this->var2, memory);
-            int k = findVar(this->var3, memory);
 
             memory[i].value = memory[j].value + memory[k].value;
 
@@ -73,12 +74,8 @@ String ProcessInstructions::runAdd(std::vector<Var> memory){
             log.append(this->var3);
             log.append(". Results stored in ");
             log.append(this->var1);
-            return log;
             break;
         case 1: //variable and constant
-            int i = findVar(this->var1, memory);
-            int j = findVar(this->var2, memory);
-
             memory[i].value = memory[j].value + this->constant1;
             
 
@@ -87,10 +84,8 @@ String ProcessInstructions::runAdd(std::vector<Var> memory){
             log.append(std::to_string(this->constant1));
             log.append(". Results stored in ");
             log.append(this->var1);
-            return log;
+            break;
         case 2: //2 constants
-            int i = findVar(this->var1, memory);
-
             memory[i].value = this->constant1 + this->constant2;
             
             log.append(std::to_string(this->constant1));
@@ -98,19 +93,20 @@ String ProcessInstructions::runAdd(std::vector<Var> memory){
             log.append(std::to_string(this->constant2));
             log.append(". Results stored in ");
             log.append(this->var1);
-            return log;
+            break;
+            
     }
+    return log;
 }
 
 
 String ProcessInstructions::runSubtract(std::vector<Var> memory){
     String log = "Subtracted ";
+    int i = findVar(this->var1, memory);
+    int j = findVar(this->var2, memory);
+    int k = findVar(this->var3, memory);
     switch(this->instruction_variation) {
         case 0: //2 variables added
-
-            int i = findVar(this->var1, memory);
-            int j = findVar(this->var2, memory);
-            int k = findVar(this->var3, memory);
 
             memory[i].value = memory[j].value - memory[k].value;
 
@@ -120,11 +116,8 @@ String ProcessInstructions::runSubtract(std::vector<Var> memory){
             log.append(this->var3);
             log.append(". Results stored in ");
             log.append(this->var1);
-            return log;
             break;
         case 1: //variable and constant
-            int i = findVar(this->var1, memory);
-            int j = findVar(this->var2, memory);
 
             memory[i].value = memory[j].value - this->constant1;
             
@@ -134,9 +127,8 @@ String ProcessInstructions::runSubtract(std::vector<Var> memory){
             log.append(std::to_string(this->constant1));
             log.append(". Results stored in ");
             log.append(this->var1);
-            return log;
+            break;
         case 2: //2 constants
-            int i = findVar(this->var1, memory);
 
             memory[i].value = this->constant1 - this->constant2;
             
@@ -145,12 +137,13 @@ String ProcessInstructions::runSubtract(std::vector<Var> memory){
             log.append(std::to_string(this->constant2));
             log.append(". Results stored in ");
             log.append(this->var1);
-            return log;
+           break;
     }
+    return log;
 }
 
 
-std::vector<ProcessInstructions> ProcessInstructions::processForLoop(std::vector<ProcessInstructions> block, int num ){
+/*std::vector<ProcessInstructions> ProcessInstructions::processForLoop(std::vector<ProcessInstructions> block, int num ){
     if (block[0].instruction_type == "FOR"){
         block = processForLoop(block, block[0].constant1);
 
@@ -163,6 +156,6 @@ std::vector<ProcessInstructions> ProcessInstructions::processForLoop(std::vector
     }
     block.erase(block.begin());
     return block;
-}
+}*/
 
 void runSleep();
