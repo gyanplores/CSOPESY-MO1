@@ -3,6 +3,7 @@
 #include "Process.h"
 #include "Core.h"
 
+#undef min
 #include <iostream>
 #include <iomanip>
 #include <sstream>
