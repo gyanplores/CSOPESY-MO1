@@ -4,8 +4,11 @@
 #include <thread>
 #include "Process.h"
 #include <mutex>
+#include <atomic>
+
 #include "Core.h"
-#include <atomic> // For stop flag
+#include "MemoryManager.h"
+
 
 class SchedulingConsole : public Console {
 private:
@@ -18,7 +21,9 @@ private:
 
     std::atomic<bool> stopRequested{false}; // Proper initialization with brace
 
-    int quantum = 2;
+    MemoryManager memoryManager{16384, 4096};
+    int quantum = 4;
+    int currentQuantumCycle = 0;
 
 public:
     SchedulingConsole();

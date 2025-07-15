@@ -2,12 +2,16 @@
 #include "ConsoleManager.h"
 #include "Process.h"
 #include "Core.h"
+#include "MemoryManager.h"
 
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <thread>
 #include <vector>
+
+MemoryManager memoryManager(16384, 4096);  // total memory, memory per process
+int currentQuantumCycle = 0;
 
 SchedulingConsole::SchedulingConsole() : Console("SCHEDULING_CONSOLE") {}
 
@@ -51,23 +55,36 @@ void SchedulingConsole::runSchedulerInBackground() {
         if (processList.empty()) break;
 
         Process p = processList.front();
+
+        if (!memoryManager.allocateMemory("process_" + std::to_string(p.id))) {
+            std::cout << "[MEMORY] Not enough memory for process_" << p.id << ". Waiting...\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            continue;
+        }
+
         processList.erase(processList.begin());
 
         int runTime = std::min(quantum, p.remainingTime);
         p.remainingTime -= runTime;
 
-       
         std::this_thread::sleep_for(std::chrono::milliseconds(runTime * 100));
 
         if (stopRequested) {
             std::cout << "[Scheduler] Stopping scheduler as requested.\n";
+            memoryManager.deallocateMemory("process_" + std::to_string(p.id));
             break;
         }
+
+        // Generate snapshot after each quantum cycle
+        currentQuantumCycle++;
+        memoryManager.generateMemorySnapshot(currentQuantumCycle);
+        std::cout << "[MEMORY] Snapshot saved for quantum: " << currentQuantumCycle << "\n";
 
         if (p.remainingTime > 0) {
             processList.push_back(p);
         } else {
             std::cout << "[DONE] P" << p.id << " completed.\n";
+            memoryManager.deallocateMemory("process_" + std::to_string(p.id));
         }
     }
 

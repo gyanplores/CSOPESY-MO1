@@ -25,7 +25,7 @@ int main() {
     int i = 0;
     while (i < 10){
         for (int j = 0; j < CORE::N_CORE && i < 10; j++) {
-            threads.push_back(std::thread(&CORE::run_print, cores[j], print_process[i]));
+            threads.push_back(std::thread(&CORE::run_print, &cores[j], std::ref(print_process[i])));
             i++;
             
         }

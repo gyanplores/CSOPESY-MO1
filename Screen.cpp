@@ -14,13 +14,14 @@ void Screen::onEnabled() {
 
 void Screen::display() {
     std::cout << "-----------------------------\n";
+    printProcess();
 }
 
 void Screen::process() {
     std::string cmd;
     std::getline(std::cin, cmd);
     if (cmd == "exit") {
-       ConsoleManager::get_instance()->switch_console(SCHEDULE);
+       ConsoleManager::get_instance()->switch_console(MAIN);
     }
     else if (cmd == "report -util"){
         generateFile();

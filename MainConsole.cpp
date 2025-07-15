@@ -80,7 +80,7 @@ void MainConsole::process(){
             break;
         case StringCode::screen:
             if(this->initialized == 1){
-                ConsoleManager::get_instance()->switch_console("UTIL");
+                ConsoleManager::get_instance()->switch_console("SCREEN_VIEW");
             } else {
                 std::cout << "Please use initialize command first..\n"; 
             }
@@ -109,7 +109,7 @@ void MainConsole::process(){
             break;
         case StringCode::report_util:
             if(this->initialized == 1){
-                ConsoleManager::get_instance()->switch_console("UTIL");
+                ConsoleManager::get_instance()->switch_console("SCREEN_VIEW");
             } else {
                 std::cout << "Please use initialize command first..\n"; 
             }
