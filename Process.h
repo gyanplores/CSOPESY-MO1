@@ -30,6 +30,8 @@ class Process {
         int burstTime;
         int remainingTime;
 
+        bool isInMemory = false;
+
         time_t timestamp;
 
         ProcessState state = READY;

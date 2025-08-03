@@ -39,7 +39,7 @@ void SchedulingConsole::display() {
 
 void SchedulingConsole::runSchedulerInBackground() {
     isSchedulerRunning = true;
-
+    /*
     {
         std::lock_guard<std::mutex> lock(processMutex);
         processList = Process::print_processes();
@@ -48,22 +48,25 @@ void SchedulingConsole::runSchedulerInBackground() {
             p.burstTime = 5 + p.id;
             p.remainingTime = p.burstTime;
         }
-    }
+    }*/
 
     while (isSchedulerRunning && !stopRequested) {
         std::lock_guard<std::mutex> lock(processMutex);
         if (processList.empty()) break;
 
-        Process p = processList.front();
+        Process& p = processList.front();
 
-        if (!memoryManager.allocateMemory("process_" + std::to_string(p.id))) {
-            std::cout << "[MEMORY] Not enough memory for process_" << p.id << ". Waiting...\n";
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            continue;
+        if (!p.isInMemory) {
+            if (!memoryManager.allocateMemory("process_" + std::to_string(p.id))) {
+                std::cout << "[MEMORY] Not enough memory for process_" << p.id << ". Waiting...\n";
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                processList.erase(processList.begin());
+                continue;
+            }
+            p.isInMemory = true;
         }
 
-        processList.erase(processList.begin());
-
+        // Instead of copying, modify p directly.
         int runTime = std::min(quantum, p.remainingTime);
         p.remainingTime -= runTime;
 
@@ -72,6 +75,7 @@ void SchedulingConsole::runSchedulerInBackground() {
         if (stopRequested) {
             std::cout << "[Scheduler] Stopping scheduler as requested.\n";
             memoryManager.deallocateMemory("process_" + std::to_string(p.id));
+            p.isInMemory = false;
             break;
         }
 
@@ -81,11 +85,16 @@ void SchedulingConsole::runSchedulerInBackground() {
         std::cout << "[MEMORY] Snapshot saved for quantum: " << currentQuantumCycle << "\n";
 
         if (p.remainingTime > 0) {
-            processList.push_back(p);
+            processList.push_back(p);  // push back the same process
         } else {
             std::cout << "[DONE] P" << p.id << " completed.\n";
             memoryManager.deallocateMemory("process_" + std::to_string(p.id));
+            p.isInMemory = false;
         }
+
+        processList.erase(processList.begin());  // Only erase after processing
+
+
     }
 
     std::cout << "[Scheduler] Round Robin scheduling completed.\n";
