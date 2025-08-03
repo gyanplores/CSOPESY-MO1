@@ -10,6 +10,11 @@
 #include <thread>
 #include <vector>
 
+#ifdef min
+#undef min
+#endif
+#include <algorithm>
+
 MemoryManager memoryManager(16384, 4096);  // total memory, memory per process
 int currentQuantumCycle = 0;
 
@@ -19,18 +24,12 @@ void SchedulingConsole::onEnabled() {
     std::lock_guard<std::mutex> lock(processMutex);
     processList.clear();
 
-    for (int i = 0; i < 5; ++i) {
-        Process p(i, 0);
-        p.burstTime = 5 + i;
-        p.remainingTime = p.burstTime;
-        processList.push_back(p);
-    }
+    // Use test processes with PRINT → SLEEP → PRINT
+    processList = Process::print_processes();  // Includes SLEEP(X)
 
-    std::cout << "[Scheduler] Round Robin Scheduler initialized with dummy processes.\n";
+    std::cout << "[Scheduler] Round Robin Scheduler initialized with SLEEP test processes.\n";
 
     stopRequested = false;
-    schedulerThread = std::thread(&SchedulingConsole::runSchedulerInBackground, this);
-    schedulerThread.detach();
 }
 
 void SchedulingConsole::display() {
@@ -39,22 +38,19 @@ void SchedulingConsole::display() {
 
 void SchedulingConsole::runSchedulerInBackground() {
     isSchedulerRunning = true;
-    /*
-    {
-        std::lock_guard<std::mutex> lock(processMutex);
-        processList = Process::print_processes();
-
-        for (auto& p : processList) {
-            p.burstTime = 5 + p.id;
-            p.remainingTime = p.burstTime;
-        }
-    }*/
 
     while (isSchedulerRunning && !stopRequested) {
         std::lock_guard<std::mutex> lock(processMutex);
         if (processList.empty()) break;
 
         Process& p = processList.front();
+
+        if (p.isSleeping(currentQuantumCycle)) {
+            std::cout << "[Scheduler] P" << p.id << " is sleeping until tick " << p.wakeAtTick << ".\n";
+            processList.push_back(p);
+            processList.erase(processList.begin());
+            continue;
+        }
 
         if (!p.isInMemory) {
             if (!memoryManager.allocateMemory("process_" + std::to_string(p.id))) {
@@ -66,11 +62,14 @@ void SchedulingConsole::runSchedulerInBackground() {
             p.isInMemory = true;
         }
 
-        // Instead of copying, modify p directly.
-        int runTime = std::min(quantum, p.remainingTime);
-        p.remainingTime -= runTime;
+        int timeUsed = 0;
+        while (timeUsed < quantum && p.state != Process::FINISHED && !p.isSleeping(currentQuantumCycle)) {
+            p.runNextInstruction(memoryManager.getMemory());
+            timeUsed++;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(runTime * 100));
+        p.remainingTime -= timeUsed;
 
         if (stopRequested) {
             std::cout << "[Scheduler] Stopping scheduler as requested.\n";
@@ -79,22 +78,19 @@ void SchedulingConsole::runSchedulerInBackground() {
             break;
         }
 
-        // Generate snapshot after each quantum cycle
         currentQuantumCycle++;
         memoryManager.generateMemorySnapshot(currentQuantumCycle);
         std::cout << "[MEMORY] Snapshot saved for quantum: " << currentQuantumCycle << "\n";
 
-        if (p.remainingTime > 0) {
-            processList.push_back(p);  // push back the same process
+        if (p.remainingTime > 0 && p.state != Process::FINISHED) {
+            processList.push_back(p);
         } else {
             std::cout << "[DONE] P" << p.id << " completed.\n";
             memoryManager.deallocateMemory("process_" + std::to_string(p.id));
             p.isInMemory = false;
         }
 
-        processList.erase(processList.begin());  // Only erase after processing
-
-
+        processList.erase(processList.begin());
     }
 
     std::cout << "[Scheduler] Round Robin scheduling completed.\n";

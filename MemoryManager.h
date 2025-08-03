@@ -5,7 +5,8 @@
 #include <fstream>
 #include <iostream>
 #include <ctime>
-#include <direct.h>   // <-- Windows-specific _mkdir
+#include <direct.h>   // Windows-specific for _mkdir
+#include "Variable.h" // Needed for Var type used by runInstruction
 
 struct MemoryBlock {
     int start;
@@ -31,6 +32,7 @@ private:
     int totalMemory;
     int maxProcessMemory;
     std::vector<MemoryBlock> memoryBlocks;
+    std::vector<Var> memory;  // Used by instruction execution
 
 public:
     MemoryManager(int totalMem, int maxProcMem)
@@ -129,5 +131,9 @@ public:
             file << "---start--- = 0\n";
             file.close();
         }
+    }
+
+    std::vector<Var>& getMemory() {
+        return memory;
     }
 };

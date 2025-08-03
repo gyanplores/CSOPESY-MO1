@@ -87,9 +87,17 @@ void MainConsole::process(){
             break;
         case StringCode::scheduler_test:
             if(this->initialized == 1){
-                ConsoleManager::get_instance()->switch_console("SCHEDULING_CONSOLE");
+                auto sched_console = std::dynamic_pointer_cast<SchedulingConsole>(
+                    ConsoleManager::get_instance()->getConsoleTable().at("SCHEDULING_CONSOLE")
+                );
+                if (sched_console) {
+                    sched_console->onEnabled();  // this runs the init/setup
+                    ConsoleManager::get_instance()->switch_console("SCHEDULING_CONSOLE");  // switch to interactive
+                } else {
+                    std::cout << "Error: Could not access SchedulingConsole.\n";
+                }
             } else {
-                std::cout << "Please use initialized command before proceeding!\n";
+                std::cout << "Please use initialize command first..\n"; 
             }
             break;
         case StringCode::scheduler_stop:
