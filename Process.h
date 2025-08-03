@@ -27,6 +27,14 @@ class Process {
 
         int current_core;
 
+<<<<<<< Updated upstream
+=======
+        int burstTime;
+        int remainingTime;
+
+        bool isInMemory = false;
+
+>>>>>>> Stashed changes
         time_t timestamp;
 
         ProcessState state = READY;

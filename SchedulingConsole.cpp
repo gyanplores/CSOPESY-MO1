@@ -22,6 +22,7 @@ void SchedulingConsole::display() {
 
 void SchedulingConsole::runSchedulerInBackground() {
     isSchedulerRunning = true;
+<<<<<<< Updated upstream
     processList.clear();
 
     std::vector<CORE> cores;
@@ -35,6 +36,18 @@ void SchedulingConsole::runSchedulerInBackground() {
         std::lock_guard<std::mutex> lock(processMutex);
         processList = Process::print_processes(); // Shared reference for live updates
     }
+=======
+    /*
+    {
+        std::lock_guard<std::mutex> lock(processMutex);
+        processList = Process::print_processes();
+
+        for (auto& p : processList) {
+            p.burstTime = 5 + p.id;
+            p.remainingTime = p.burstTime;
+        }
+    }*/
+>>>>>>> Stashed changes
 
     std::vector<std::thread> threads;
     int i = 0;
@@ -42,6 +55,7 @@ void SchedulingConsole::runSchedulerInBackground() {
         for (int j = 0; j < CORE::N_CORE && i < processList.size(); j++, i++) {
             threads.emplace_back(&CORE::run_print, &cores[j], std::ref(processList[i]));
 
+<<<<<<< Updated upstream
             {
                 std::lock_guard<std::mutex> lock(utilizationMutex); 
                 coreUtilization[j]++; 
@@ -50,6 +64,49 @@ void SchedulingConsole::runSchedulerInBackground() {
 
         for (auto& t : threads) t.join();
         threads.clear();
+=======
+        Process& p = processList.front();
+
+        if (!p.isInMemory) {
+            if (!memoryManager.allocateMemory("process_" + std::to_string(p.id))) {
+                std::cout << "[MEMORY] Not enough memory for process_" << p.id << ". Waiting...\n";
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                processList.erase(processList.begin());
+                continue;
+            }
+            p.isInMemory = true;
+        }
+
+        // Instead of copying, modify p directly.
+        int runTime = std::min(quantum, p.remainingTime);
+        p.remainingTime -= runTime;
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(runTime * 100));
+
+        if (stopRequested) {
+            std::cout << "[Scheduler] Stopping scheduler as requested.\n";
+            memoryManager.deallocateMemory("process_" + std::to_string(p.id));
+            p.isInMemory = false;
+            break;
+        }
+
+        // Generate snapshot after each quantum cycle
+        currentQuantumCycle++;
+        memoryManager.generateMemorySnapshot(currentQuantumCycle);
+        std::cout << "[MEMORY] Snapshot saved for quantum: " << currentQuantumCycle << "\n";
+
+        if (p.remainingTime > 0) {
+            processList.push_back(p);  // push back the same process
+        } else {
+            std::cout << "[DONE] P" << p.id << " completed.\n";
+            memoryManager.deallocateMemory("process_" + std::to_string(p.id));
+            p.isInMemory = false;
+        }
+
+        processList.erase(processList.begin());  // Only erase after processing
+
+
+>>>>>>> Stashed changes
     }
 
     isSchedulerRunning = false;
