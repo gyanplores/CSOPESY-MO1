@@ -1,68 +1,99 @@
 #include "Process.h"
-#include <chrono>
-#include <ctime>
-#include <iomanip>
+#include <iostream>
+#include <vector>
+#include <string>
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-Process::Process(int i, int n)
-  : id(i), maxPrints(n), printedCount(0), state(READY)
-{}
+extern int currentQuantumCycle; // To access the scheduler's global quantum tick
 
-Process::~Process() {
-    if (logFile.is_open()) logFile.close();
-=======
 Process::Process(int i, int n) : id(i), instruction_lines_max(n) {
     time(&timestamp);
 
-=======
-Process::Process(int i, int n) : id(i), instruction_lines_max(n) {
-    time(&timestamp);
-
->>>>>>> Stashed changes
     burstTime = instruction_lines_max;
     remainingTime = burstTime;
 }
 
-//return a vector of processes for week 6 homework
-
 std::vector<Process> Process::print_processes() {
     static std::vector<Process> v;
 
-    for (int i = 0; i < 10; i++){
-        v.push_back(Process(i, 100));
+    for (int i = 0; i < 10; i++) {
+        Process p(i, 3);  // 3 instructions for test
+
+        // Instruction 1: PRINT "Hello from P<i>"
+        ProcessInstructions instr1;
+        instr1.instruction_type = "PRINT";
+        instr1.instruction_variation = 0;
+        instr1.constant_string = "Hello from process_" + std::to_string(i);
+
+        // Instruction 2: SLEEP(2)
+        ProcessInstructions instr2;
+        instr2.instruction_type = "SLEEP";
+        instr2.constant1 = 2;
+        instr2.trigger_sleep = true;
+
+        // Instruction 3: PRINT "Process <i> woke up"
+        ProcessInstructions instr3;
+        instr3.instruction_type = "PRINT";
+        instr3.instruction_variation = 0;
+        instr3.constant_string = "Process " + std::to_string(i) + " woke up.";
+
+        // Add to process
+        p.instructions.push_back(instr1);
+        p.instructions.push_back(instr2);
+        p.instructions.push_back(instr3);
+
+        // Set instruction max
+        p.instruction_lines_max = p.instructions.size();
+
+        v.push_back(p);
     }
 
     return v;
->>>>>>> Stashed changes
 }
 
-void Process::openLogFile() {
-    std::lock_guard<std::mutex> lk(fileMutex);
-    logFile.open("process_" + std::to_string(id) + ".txt", std::ios::out);
+void Process::setRunning() {
+    this->state = RUNNING;
 }
 
-bool Process::executePrint(int coreId) {
-    std::lock_guard<std::mutex> lk(fileMutex);
-
-    auto now = std::chrono::system_clock::now();
-    std::time_t t = std::chrono::system_clock::to_time_t(now);
-    auto tm = *std::localtime(&t);
-
-    logFile << "("
-            << std::put_time(&tm, "%m/%d/%Y %I:%M:%S%p")
-            << ") Core:" << coreId
-            << " Print#" << (printedCount + 1)
-            << "\n";
-
-    ++printedCount;
-    return (printedCount >= maxPrints);
+void Process::setFinished() {
+    this->state = FINISHED;
 }
 
-int Process::getId() const {
-    return id;
+std::string Process::setCurrentTime() {
+    time(&(this->timestamp));
+    time_t t = this->timestamp;
+    std::string thetime = ctime(&t);
+    thetime.erase(thetime.find('\n', 0), 1);
+    return thetime;
 }
 
-void Process::setState(State s) {
-    state = s;
+void Process::logInstruction(int coreId) {
+    time_t now;
+    time(&now);
+    char timeBuffer[80];
+    strftime(timeBuffer, sizeof(timeBuffer), "%m/%d/%Y %I:%M:%S%p", localtime(&now));
+
+    InstructionLog log = {
+        timeBuffer,
+        coreId
+    };
+
+    instructionLogs.push_back(log);
+}
+
+void Process::runNextInstruction(std::vector<Var>& memory) {
+    if (instruction_lines_current >= instruction_lines_max) {
+        setFinished();
+        return;
+    }
+
+    ProcessInstructions& instr = instructions[instruction_lines_current];
+    std::string result = instr.runInstruction(memory);
+
+    if (instr.instruction_type == "SLEEP" && instr.trigger_sleep) {
+        this->setSleep(currentQuantumCycle + instr.constant1);  // delay process
+    }
+
+    std::cout << "[P" << id << "] " << result << "\n";
+
+    instruction_lines_current++;
 }

@@ -1,18 +1,16 @@
 #pragma once
 #include "Console.h"
-#include "Process.h"
-
-#include <queue>
+#include "Screen.h"
 #include <thread>
+#include "Process.h"
 #include <mutex>
-#include <condition_variable>
-#include <vector>
 #include <atomic>
-#include <memory>
+
+#include "Core.h"
+#include "MemoryManager.h"
+
 
 class SchedulingConsole : public Console {
-<<<<<<< Updated upstream
-=======
 private:
     std::thread schedulerThread;
     bool isSchedulerRunning = false;
@@ -21,42 +19,24 @@ private:
     std::vector<int> coreUtilization;
     std::mutex utilizationMutex;
 
-    int quantum = 2;
+    std::atomic<bool> stopRequested{false}; // Proper initialization with brace
 
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+    MemoryManager memoryManager{16384, 4096};
+    int quantum = 4;
+    int currentQuantumCycle = 0;
+
 public:
     SchedulingConsole();
-    ~SchedulingConsole();
 
+    // Prevent copying to avoid atomic copy errors
+    SchedulingConsole(const SchedulingConsole&) = delete;
+    SchedulingConsole& operator=(const SchedulingConsole&) = delete;
+
+    friend class Screen;
+    void updateProcess(const Process& p);
     void onEnabled() override;
     void display() override;
     void process() override;
-
-private:
-    void startScheduler();
-    void stopScheduler();
-    void schedulerLoop();
-    void workerLoop(int coreId);
-    void printStatus();
-
-    // All 10 processes
-    std::vector<std::shared_ptr<Process>> processes;
-
-    // FCFS ready queue
-    std::queue<std::shared_ptr<Process>> readyQueue;
-    std::mutex readyMutex;
-    std::condition_variable readyCv;
-
-    // Threads
-    std::thread schedulerThread;
-    std::vector<std::thread> workerThreads;
-    std::atomic<bool> running{false};
-
-    // State for screen -ls
-    std::mutex stateMutex;
-    std::vector<std::shared_ptr<Process>> finished;
-    std::shared_ptr<Process> currentRunning;
+    void runSchedulerInBackground(); 
+    void stopScheduler(); // Method to stop scheduler
 };
