@@ -1,9 +1,9 @@
 Process Name:  process_2
 Logs:
 
-Tue Aug  5 13:33:03 2025  |  CORE: 0 | Process instructed to sleep for 2 quantum cycles.
-Tue Aug  5 13:33:03 2025  |  CORE: 0 | Sleeping until tick 14
-Tue Aug  5 13:33:03 2025  |  CORE: 0 | Process instructed to sleep for 2 quantum cycles.
-Tue Aug  5 13:33:03 2025  |  CORE: 0 | Sleeping until tick 16
-Tue Aug  5 13:33:03 2025  |  CORE: 0 | Process instructed to sleep for 2 quantum cycles.
-Tue Aug  5 13:33:03 2025  |  CORE: 0 | Sleeping until tick 18
+Tue Aug  5 16:00:55 2025  |  CORE: 0 | Process instructed to sleep for 2 quantum cycles.
+Tue Aug  5 16:00:55 2025  |  CORE: 0 | Sleeping until tick 14
+Tue Aug  5 16:00:55 2025  |  CORE: 0 | Process instructed to sleep for 2 quantum cycles.
+Tue Aug  5 16:00:55 2025  |  CORE: 0 | Sleeping until tick 16
+Tue Aug  5 16:00:55 2025  |  CORE: 0 | Process instructed to sleep for 2 quantum cycles.
+Tue Aug  5 16:00:55 2025  |  CORE: 0 | Sleeping until tick 18

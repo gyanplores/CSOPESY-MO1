@@ -54,26 +54,26 @@ void MainConsole::process(){
     }else if (command.rfind("screen -c", 0) == 0 && command.length() > 10) {
         std::string process_name = command.substr(10);
 
-        // Get scheduler console
         auto sched_console = std::dynamic_pointer_cast<SchedulingConsole>(
             ConsoleManager::get_instance()->getConsoleTable().at("SCHEDULING_CONSOLE")
         );
 
-        if (sched_console) {
-            // Start scheduler if not running
-            if (!sched_console->isRunning()) {
-                sched_console->startScheduler();
-            }
-
-            // Create the process
-            sched_console->createProcessByName(process_name);
-            std::cout << "Process '" << process_name << "' created and scheduled.\n";
-        } else {
+        if (!sched_console) {
             std::cout << "Could not access SchedulingConsole.\n";
+            return;
         }
 
+        // Start scheduler if not running
+        if (!sched_console->isRunning()) {
+            sched_console->startScheduler();
+        }
+
+        // Create process
+        sched_console->createProcessByName(process_name);
+        std::cout << "Process '" << process_name << "' created and scheduled.\n";
         return;
     }
+
 
 
 

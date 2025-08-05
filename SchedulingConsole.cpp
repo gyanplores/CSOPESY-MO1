@@ -113,10 +113,9 @@ void SchedulingConsole::createProcessByName(const std::string& name) {
     std::lock_guard<std::mutex> lock(processMutex);
 
     int newId = processList.size();
-    Process p(newId, 3); // example: 3 instructions
+    Process p(newId, 3); // 3 instructions default
     p.customName = name;
 
-    // Example: give starting PRINT instruction
     ProcessInstructions instr;
     instr.instruction_type = "PRINT";
     instr.constant_string = "Process " + name + " started.";
@@ -124,6 +123,7 @@ void SchedulingConsole::createProcessByName(const std::string& name) {
 
     processList.push_back(p);
 }
+
 
 
 void SchedulingConsole::process() {
