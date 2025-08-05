@@ -37,4 +37,6 @@ private:
     String runAdd(std::vector<Var> memory);
     String runSubtract(std::vector<Var> memory);
     String runSleep(std::vector<Var> memory);
+
+    static 
 };
