@@ -18,36 +18,30 @@ std::vector<Process> Process::print_processes() {
     for (int i = 0; i < 10; i++) {
         Process p(i, 0);
 
-        // Build loop body
         std::vector<ProcessInstructions> loopBody;
 
-        // PRINT "Hello from process_X"
         ProcessInstructions instr1;
         instr1.instruction_type = "PRINT";
         instr1.instruction_variation = 0;
         instr1.constant_string = "Hello from process_" + std::to_string(i);
         loopBody.push_back(instr1);
 
-        // SLEEP(2)
         ProcessInstructions instr2;
         instr2.instruction_type = "SLEEP";
         instr2.constant1 = 2;
         loopBody.push_back(instr2);
 
-        // PRINT "Process X woke up"
         ProcessInstructions instr3;
         instr3.instruction_type = "PRINT";
         instr3.instruction_variation = 0;
         instr3.constant_string = "Process " + std::to_string(i) + " woke up.";
         loopBody.push_back(instr3);
 
-        // Wrap it in FOR([...], repeats=2)
         ProcessInstructions forInstr;
         forInstr.instruction_type = "FOR";
         forInstr.repeatCount = 2;
         forInstr.loopBody = loopBody;
 
-        // Expand the loop and assign to process
         std::vector<ProcessInstructions> expanded = forInstr.processForLoop(forInstr);
 
         p.instructions = expanded;
@@ -96,10 +90,12 @@ void Process::runNextInstruction(std::vector<Var>& memory) {
     }
 
     ProcessInstructions& instr = instructions[instruction_lines_current];
-    std::string result = instr.runInstruction(memory);
+
+    std::string processName = "process_" + std::to_string(id);
+    std::string result = instr.runInstruction(memory, processName); // ✅ FIXED
 
     if (instr.instruction_type == "SLEEP" && instr.trigger_sleep) {
-        this->setSleep(currentQuantumCycle + instr.constant1);  // delay process
+        this->setSleep(currentQuantumCycle + instr.constant1);
     }
 
     std::cout << "[P" << id << "] " << result << "\n";

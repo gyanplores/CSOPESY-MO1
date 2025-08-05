@@ -6,6 +6,8 @@
 #include <iostream>
 #include <fstream>
 
+extern MemoryManager memoryManager;
+
 Screen::Screen(std::string processName) : Console(processName) {}
 
 void Screen::onEnabled() {
@@ -30,6 +32,13 @@ void Screen::process() {
         std::string process_name = cmd.substr(10);  
         printProcess(process_name);
     }
+    else if (cmd == "process-smi") {
+        showProcessSMI();
+    }
+    else if (cmd == "vmstat") {
+        showVMStat();
+    }
+
 }
 
 void Screen::printProcess(std::string processName){
@@ -186,3 +195,73 @@ void Screen::generateFile() const {
     std::cout << "[Screen] Report saved to Output_files/csopsey-log.txt\n";
 }
 
+void Screen::showProcessSMI() const {
+    auto* scheduler = dynamic_cast<SchedulingConsole*>(
+        ConsoleManager::get_instance()->getConsoleTable().at("SCHEDULE_CONSOLE").get());
+
+    if (!scheduler) {
+        std::cout << "[Screen] Unable to fetch scheduler info.\n";
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(scheduler->processMutex);
+
+    int totalMem = memoryManager.getTotalMemory();
+    int usedMem = memoryManager.getUsedMemory();
+    int freeMem = totalMem - usedMem;
+
+    std::cout << "[process-smi]\n";
+    std::cout << "Total Memory: " << totalMem << " KB\n";
+    std::cout << "Used Memory : " << usedMem << " KB\n";
+    std::cout << "Free Memory : " << freeMem << " KB\n";
+
+    std::cout << "\nProcesses in Memory:\n";
+    for (const auto& block : memoryManager.getAllocatedBlocks()) {
+        std::cout << "- " << block.processName
+                  << " occupies " << block.blockSize << " KB at address " << block.startAddress << "\n";
+    }
+
+    std::cout << "--------------------------------------------\n";
+}
+
+void Screen::showVMStat() const {
+    auto* scheduler = dynamic_cast<SchedulingConsole*>(
+        ConsoleManager::get_instance()->getConsoleTable().at("SCHEDULE_CONSOLE").get());
+
+    if (!scheduler) {
+        std::cout << "[Screen] Unable to fetch scheduler info.\n";
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(scheduler->processMutex);
+
+    int totalMem = memoryManager.getTotalMemory();
+    int usedMem = memoryManager.getUsedMemory();
+    int freeMem = totalMem - usedMem;
+
+    std::cout << "[vmstat]\n";
+    std::cout << "Total Memory: " << totalMem << " KB\n";
+    std::cout << "Used Memory : " << usedMem << " KB\n";
+    std::cout << "Free Memory : " << freeMem << " KB\n";
+
+    int active = 0, sleeping = 0, finished = 0;
+
+    for (const auto& proc : scheduler->processList) {
+        if (proc.state == Process::RUNNING) active++;
+        else if (proc.state == Process::WAITING) sleeping++;
+        else if (proc.state == Process::FINISHED) finished++;
+    }
+
+    std::cout << "Processes:\n";
+    std::cout << "- Active  : " << active << "\n";
+    std::cout << "- Sleeping: " << sleeping << "\n";
+    std::cout << "- Finished: " << finished << "\n";
+
+    std::cout << "\nMemory Pages (Simulated):\n";
+    std::cout << "- Page Size: 4096 KB\n";
+    std::cout << "- Total Pages: " << (totalMem / 4096) << "\n";
+    std::cout << "- Used Pages : " << (usedMem / 4096) << "\n";
+    std::cout << "- Free Pages : " << (freeMem / 4096) << "\n";
+
+    std::cout << "--------------------------------------------\n";
+}

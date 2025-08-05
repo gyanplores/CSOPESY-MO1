@@ -5,14 +5,14 @@ Cores available: 2
 Running processes:
 
 Finished processes:
-process00 (08/05/2025 12:16:28PM) Finished 2 / 6
-process01 (08/05/2025 12:16:28PM) Finished 2 / 6
-process02 (08/05/2025 12:16:28PM) Finished 4 / 6
-process03 (08/05/2025 12:16:28PM) Finished 4 / 6
-process04 (08/05/2025 12:16:28PM) Finished 4 / 6
-process05 (08/05/2025 12:16:28PM) Finished 4 / 6
-process06 (08/05/2025 12:16:28PM) Finished 4 / 6
-process07 (08/05/2025 12:16:28PM) Finished 4 / 6
-process08 (08/05/2025 12:16:28PM) Finished 4 / 6
-process09 (08/05/2025 12:16:28PM) Finished 4 / 6
+process00 (08/05/2025 04:50:59PM) Finished 2 / 6
+process01 (08/05/2025 04:50:59PM) Finished 2 / 6
+process02 (08/05/2025 04:50:59PM) Finished 4 / 6
+process03 (08/05/2025 04:50:59PM) Finished 4 / 6
+process04 (08/05/2025 04:50:59PM) Finished 4 / 6
+process05 (08/05/2025 04:50:59PM) Finished 4 / 6
+process06 (08/05/2025 04:50:59PM) Finished 4 / 6
+process07 (08/05/2025 04:50:59PM) Finished 4 / 6
+process08 (08/05/2025 04:50:59PM) Finished 4 / 6
+process09 (08/05/2025 04:50:59PM) Finished 4 / 6
 --------------------------------------------
