@@ -29,7 +29,6 @@ struct PageTableEntry {
     int backingStoreIndex = -1; // Where in file if swapped out
 };
 
-
 inline std::string getCurrentTime() {
     time_t now = time(0);
     tm* ltm = localtime(&now);
@@ -238,7 +237,6 @@ public:
     }
 
     void generateMemorySnapshot(int quantumCycle) {
-        createMemoryStampDirectory();
         std::string filename = "memory_stamps/memory_stamp_" + std::to_string(quantumCycle) + ".txt";
         std::ofstream file(filename);
 

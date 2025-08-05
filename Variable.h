@@ -10,7 +10,8 @@ public:
     String name;
     int value;
     bool inUse = 0;
+    int virtualAddress;
 
 public:
-    Var(String name, int value);
+    Var(String name, int value, int vAddr = 0);
 };

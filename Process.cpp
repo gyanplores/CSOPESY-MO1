@@ -97,8 +97,9 @@ void Process::runNextInstruction(std::vector<Var>& memory) {
         return;
     }
 
+    std::string processName = "process_" + std::to_string(id);
     ProcessInstructions& instr = instructions[instruction_lines_current];
-    std::string result = instr.runInstruction(memoryManager, memory);
+    std::string result = instr.runInstruction(memoryManager, memory,processName);
 
     if (instr.instruction_type == "SLEEP" && instr.trigger_sleep) {
         this->setSleep(currentQuantumCycle + instr.constant1);  // delay process

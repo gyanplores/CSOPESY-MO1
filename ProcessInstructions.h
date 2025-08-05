@@ -33,7 +33,7 @@ public:
     std::vector<ProcessInstructions> loopBody;  // instructions inside the loop
 
     // Public methods
-    String runInstruction(MemoryManager& memoryManager, std::vector<Var>& memory);
+    String runInstruction(MemoryManager& memoryManager, std::vector<Var>& memory, const std::string& processName);
     static std::vector<ProcessInstructions> processForLoop(ProcessInstructions forInstr);  // expand the loop
     int findVar(String varname, std::vector<Var>& memory);
 

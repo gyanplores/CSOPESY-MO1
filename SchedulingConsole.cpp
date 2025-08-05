@@ -15,6 +15,11 @@
 #endif
 #include <algorithm>
 
+#ifdef min
+#undef min
+#endif
+#include <algorithm>
+
 extern MemoryManager memoryManager;  
 int currentQuantumCycle = 0;
 

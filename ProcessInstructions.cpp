@@ -8,14 +8,17 @@ using String = std::string;
 
 extern MemoryManager memoryManager;
 
-String ProcessInstructions::runInstruction(MemoryManager& memoryManager, std::vector<Var>& memory) {
+String ProcessInstructions::runInstruction(MemoryManager& memoryManager, std::vector<Var>& memory, const std::string& processName) {
     if (this->instruction_type == "PRINT") {
         return runPrint(memory);
     } else if (this->instruction_type == "DECLARE") {
+        memoryManager.loadPageIfNeeded(processName, 0);
         return runDeclare(memory);
     } else if (this->instruction_type == "ADD") {
+        memoryManager.loadPageIfNeeded(processName, 0);
         return runAdd(memory);
     } else if (this->instruction_type == "SUBTRACT") {
+        memoryManager.loadPageIfNeeded(processName, 0);
         return runSubtract(memory);
     } else if (this->instruction_type == "SLEEP") {
         return runSleep(memory);

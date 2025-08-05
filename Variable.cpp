@@ -5,4 +5,4 @@
 
 using String = std::string;
 
-Var::Var(String name, int value) : name(name), value(value) {};
+Var::Var(String name, int value, int vAddr) : name(name), value(value), virtualAddress(vAddr) {}

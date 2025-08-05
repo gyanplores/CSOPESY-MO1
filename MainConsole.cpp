@@ -108,10 +108,12 @@ void MainConsole::process(){
         case StringCode::exit:
             ConsoleManager::get_instance()->exit_application();
             break;
+
         case StringCode::clear:
             system("cls");
             onEnabled();
             break;
+
         case StringCode::help:
             std::cout << "Available commands:\n"
                       << "  exit            - Quit the program\n"
@@ -125,10 +127,12 @@ void MainConsole::process(){
                       << "  process-smi      - Show memory summary and process usage\n"
                       << "  vmstat           - Show detailed VM and memory page stats\n";
             break;
+
         case StringCode::initialize:
             ConsoleManager::get_instance()->initialize_console();
             this->initialized = 1;
             break;
+
         case StringCode::screen:
             if(this->initialized == 1){
                 ConsoleManager::get_instance()->switch_console("SCREEN_VIEW");
@@ -136,6 +140,7 @@ void MainConsole::process(){
                 std::cout << "Please use initialize command first..\n"; 
             }
             break;
+
         case StringCode::scheduler_test:
             if(this->initialized == 1){
                 auto sched_console = std::dynamic_pointer_cast<SchedulingConsole>(
@@ -151,6 +156,7 @@ void MainConsole::process(){
                 std::cout << "Please use initialize command first..\n"; 
             }
             break;
+
         case StringCode::scheduler_stop:
             if (this->initialized == 1) {
                 auto sched_console = std::dynamic_pointer_cast<SchedulingConsole>(
@@ -166,6 +172,7 @@ void MainConsole::process(){
                 std::cout << "Please use initialize command first..\n"; 
             }
             break;
+
         case StringCode::report_util:
             if (this->initialized == 1) {
                 auto screen_console = std::dynamic_pointer_cast<Screen>(
@@ -182,6 +189,7 @@ void MainConsole::process(){
                 std::cout << "Please use initialize command first..\n"; 
             }
             break;
+
         case StringCode::process_smi:
             if (this->initialized == 1) {
                 auto screen_console = std::dynamic_pointer_cast<Screen>(

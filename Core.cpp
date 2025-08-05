@@ -36,11 +36,13 @@ void CORE::run_print(Process& p) {
             continue;
         }
 
+        std::string processName = "process_" + std::to_string(p.id);
+
         // Get the current instruction
         ProcessInstructions& instr = p.instructions[p.instruction_lines_current];
 
         // Run the instruction
-        std::string log = instr.runInstruction(memoryManager, memory);
+        std::string log = instr.runInstruction(memoryManager, memory, processName);
 
         // If it's a SLEEP instruction, set wake time
         if (instr.instruction_type == "SLEEP" && instr.trigger_sleep) {
@@ -64,3 +66,4 @@ void CORE::run_print(Process& p) {
 
     p.setFinished();
 }
+
