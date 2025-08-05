@@ -10,7 +10,9 @@ public:
     String name;
     int value;
     bool inUse = 0;
+    int memory;
 
 public:
     Var(String name, int value);
+    Var(String name, int value,  int memory);
 };
