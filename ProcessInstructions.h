@@ -21,12 +21,17 @@ public:
     String instruction_type = "";
     int instruction_variation = 0;
 
-    // Sleep trigger flag (must be public so Process can access it)
+    // Sleep trigger flag
     bool trigger_sleep = false;
+
+    // FOR loop support
+    bool isLoop = false;  // true if this instruction is a FOR loop
+    int repeatCount = 0;  // how many times to repeat
+    std::vector<ProcessInstructions> loopBody;  // instructions inside the loop
 
     // Public methods
     String runInstruction(std::vector<Var> memory);
-    std::vector<ProcessInstructions> processForLoop(std::vector<ProcessInstructions> block);
+    static std::vector<ProcessInstructions> processForLoop(ProcessInstructions forInstr);  // expand the loop
     int findVar(String varname, std::vector<Var> memory);
 
 private:

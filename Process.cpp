@@ -13,35 +13,44 @@ Process::Process(int i, int n) : id(i), instruction_lines_max(n) {
 }
 
 std::vector<Process> Process::print_processes() {
-    static std::vector<Process> v;
+    std::vector<Process> v;
 
     for (int i = 0; i < 10; i++) {
-        Process p(i, 3);  // 3 instructions for test
+        Process p(i, 0);
 
-        // Instruction 1: PRINT "Hello from P<i>"
+        // Build loop body
+        std::vector<ProcessInstructions> loopBody;
+
+        // PRINT "Hello from process_X"
         ProcessInstructions instr1;
         instr1.instruction_type = "PRINT";
         instr1.instruction_variation = 0;
         instr1.constant_string = "Hello from process_" + std::to_string(i);
+        loopBody.push_back(instr1);
 
-        // Instruction 2: SLEEP(2)
+        // SLEEP(2)
         ProcessInstructions instr2;
         instr2.instruction_type = "SLEEP";
         instr2.constant1 = 2;
-        instr2.trigger_sleep = true;
+        loopBody.push_back(instr2);
 
-        // Instruction 3: PRINT "Process <i> woke up"
+        // PRINT "Process X woke up"
         ProcessInstructions instr3;
         instr3.instruction_type = "PRINT";
         instr3.instruction_variation = 0;
         instr3.constant_string = "Process " + std::to_string(i) + " woke up.";
+        loopBody.push_back(instr3);
 
-        // Add to process
-        p.instructions.push_back(instr1);
-        p.instructions.push_back(instr2);
-        p.instructions.push_back(instr3);
+        // Wrap it in FOR([...], repeats=2)
+        ProcessInstructions forInstr;
+        forInstr.instruction_type = "FOR";
+        forInstr.repeatCount = 2;
+        forInstr.loopBody = loopBody;
 
-        // Set instruction max
+        // Expand the loop and assign to process
+        std::vector<ProcessInstructions> expanded = forInstr.processForLoop(forInstr);
+
+        p.instructions = expanded;
         p.instruction_lines_max = p.instructions.size();
 
         v.push_back(p);

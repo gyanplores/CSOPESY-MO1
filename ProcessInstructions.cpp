@@ -119,3 +119,13 @@ String ProcessInstructions::runSleep(std::vector<Var> memory) {
     return log;
 }
 
+std::vector<ProcessInstructions> ProcessInstructions::processForLoop(ProcessInstructions forInstr) {
+    std::vector<ProcessInstructions> expanded;
+    for (int i = 0; i < forInstr.repeatCount; ++i) {
+        for (const auto& instr : forInstr.loopBody) {
+            expanded.push_back(instr);
+        }
+    }
+    return expanded;
+}
+
