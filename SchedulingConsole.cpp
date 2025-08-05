@@ -88,6 +88,8 @@ void SchedulingConsole::runSchedulerInBackground() {
             std::cout << "[DONE] P" << p.id << " completed.\n";
             memoryManager.deallocateMemory("process_" + std::to_string(p.id));
             p.isInMemory = false;
+
+            finishedProcesses.push_back(p);
         }
 
         processList.erase(processList.begin());

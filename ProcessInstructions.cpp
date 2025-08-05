@@ -1,17 +1,23 @@
 #include "ProcessInstructions.h"
+#include "MemoryManager.h"
 #include <string>
 #include <vector>
 
 using String = std::string;
 
-String ProcessInstructions::runInstruction(std::vector<Var> memory) {
+extern MemoryManager memoryManager;
+
+String ProcessInstructions::runInstruction(std::vector<Var> memory, const std::string& processName) {
     if (this->instruction_type == "PRINT") {
         return runPrint(memory);
     } else if (this->instruction_type == "DECLARE") {
+        memoryManager.loadPageIfNeeded(processName, 0);
         return runDeclare(memory);
     } else if (this->instruction_type == "ADD") {
+        memoryManager.loadPageIfNeeded(processName, 0);
         return runAdd(memory);
     } else if (this->instruction_type == "SUBTRACT") {
+        memoryManager.loadPageIfNeeded(processName, 0);
         return runSubtract(memory);
     } else if (this->instruction_type == "SLEEP") {
         return runSleep(memory);
@@ -25,31 +31,21 @@ int ProcessInstructions::findVar(String varname, std::vector<Var> memory) {
             return i;
         }
     }
-    return -1; // fixed infinite recursion
+    return -1;
 }
 
 String ProcessInstructions::runPrint(std::vector<Var> memory) {
     switch (this->instruction_variation) {
-        case 0: {
-            return this->constant_string;
-        }
-        case 1: {
-            return this->constant_string + std::to_string(this->constant1);
-        }
-        case 2: {
-            return std::to_string(this->constant1) + this->constant_string;
-        }
+        case 0: return this->constant_string;
+        case 1: return this->constant_string + std::to_string(this->constant1);
+        case 2: return std::to_string(this->constant1) + this->constant_string;
     }
     return "Invalid PRINT variation.";
 }
 
 String ProcessInstructions::runDeclare(std::vector<Var> memory) {
     memory.push_back(Var(this->var1, this->constant1));
-    String log = "Variable ";
-    log += this->var1;
-    log += " declared with value ";
-    log += std::to_string(this->constant1);
-    return log;
+    return "Variable " + this->var1 + " declared with value " + std::to_string(this->constant1);
 }
 
 void ProcessInstructions::runDeclareBlank(std::vector<Var> memory) {
@@ -64,21 +60,18 @@ String ProcessInstructions::runAdd(std::vector<Var> memory) {
             int j = findVar(this->var2, memory);
             int k = findVar(this->var3, memory);
             memory[i].value = memory[j].value + memory[k].value;
-            log += this->var2 + " and " + this->var3 + ". Results stored in " + this->var1;
-            return log;
+            return log + this->var2 + " and " + this->var3 + ". Results stored in " + this->var1;
         }
         case 1: {
             int i = findVar(this->var1, memory);
             int j = findVar(this->var2, memory);
             memory[i].value = memory[j].value + this->constant1;
-            log += this->var2 + " and " + std::to_string(this->constant1) + ". Results stored in " + this->var1;
-            return log;
+            return log + this->var2 + " and " + std::to_string(this->constant1) + ". Results stored in " + this->var1;
         }
         case 2: {
             int i = findVar(this->var1, memory);
             memory[i].value = this->constant1 + this->constant2;
-            log += std::to_string(this->constant1) + " and " + std::to_string(this->constant2) + ". Results stored in " + this->var1;
-            return log;
+            return log + std::to_string(this->constant1) + " and " + std::to_string(this->constant2) + ". Results stored in " + this->var1;
         }
     }
     return "Invalid ADD variation.";
@@ -92,30 +85,34 @@ String ProcessInstructions::runSubtract(std::vector<Var> memory) {
             int j = findVar(this->var2, memory);
             int k = findVar(this->var3, memory);
             memory[i].value = memory[j].value - memory[k].value;
-            log += this->var2 + " from " + this->var3 + ". Results stored in " + this->var1;
-            return log;
+            return log + this->var2 + " from " + this->var3 + ". Results stored in " + this->var1;
         }
         case 1: {
             int i = findVar(this->var1, memory);
             int j = findVar(this->var2, memory);
             memory[i].value = memory[j].value - this->constant1;
-            log += this->var2 + " from " + std::to_string(this->constant1) + ". Results stored in " + this->var1;
-            return log;
+            return log + this->var2 + " and " + std::to_string(this->constant1) + ". Results stored in " + this->var1;
         }
         case 2: {
             int i = findVar(this->var1, memory);
             memory[i].value = this->constant1 - this->constant2;
-            log += std::to_string(this->constant1) + " and " + std::to_string(this->constant2) + ". Results stored in " + this->var1;
-            return log;
+            return log + std::to_string(this->constant1) + " and " + std::to_string(this->constant2) + ". Results stored in " + this->var1;
         }
     }
     return "Invalid SUBTRACT variation.";
 }
 
-// SLEEP(X) implementation
 String ProcessInstructions::runSleep(std::vector<Var> memory) {
-    String log = "Process instructed to sleep for " + std::to_string(this->constant1) + " quantum cycles.";
-    this->trigger_sleep = true;  // mark this instruction to delay the process
-    return log;
+    this->trigger_sleep = true;
+    return "Process instructed to sleep for " + std::to_string(this->constant1) + " quantum cycles.";
 }
 
+std::vector<ProcessInstructions> ProcessInstructions::processForLoop(ProcessInstructions forInstr) {
+    std::vector<ProcessInstructions> expanded;
+    for (int i = 0; i < forInstr.repeatCount; ++i) {
+        for (const auto& instr : forInstr.loopBody) {
+            expanded.push_back(instr);
+        }
+    }
+    return expanded;
+}

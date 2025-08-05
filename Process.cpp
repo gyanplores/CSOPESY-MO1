@@ -13,35 +13,38 @@ Process::Process(int i, int n) : id(i), instruction_lines_max(n) {
 }
 
 std::vector<Process> Process::print_processes() {
-    static std::vector<Process> v;
+    std::vector<Process> v;
 
     for (int i = 0; i < 10; i++) {
-        Process p(i, 3);  // 3 instructions for test
+        Process p(i, 0);
 
-        // Instruction 1: PRINT "Hello from P<i>"
+        std::vector<ProcessInstructions> loopBody;
+
         ProcessInstructions instr1;
         instr1.instruction_type = "PRINT";
         instr1.instruction_variation = 0;
         instr1.constant_string = "Hello from process_" + std::to_string(i);
+        loopBody.push_back(instr1);
 
-        // Instruction 2: SLEEP(2)
         ProcessInstructions instr2;
         instr2.instruction_type = "SLEEP";
         instr2.constant1 = 2;
-        instr2.trigger_sleep = true;
+        loopBody.push_back(instr2);
 
-        // Instruction 3: PRINT "Process <i> woke up"
         ProcessInstructions instr3;
         instr3.instruction_type = "PRINT";
         instr3.instruction_variation = 0;
         instr3.constant_string = "Process " + std::to_string(i) + " woke up.";
+        loopBody.push_back(instr3);
 
-        // Add to process
-        p.instructions.push_back(instr1);
-        p.instructions.push_back(instr2);
-        p.instructions.push_back(instr3);
+        ProcessInstructions forInstr;
+        forInstr.instruction_type = "FOR";
+        forInstr.repeatCount = 2;
+        forInstr.loopBody = loopBody;
 
-        // Set instruction max
+        std::vector<ProcessInstructions> expanded = forInstr.processForLoop(forInstr);
+
+        p.instructions = expanded;
         p.instruction_lines_max = p.instructions.size();
 
         v.push_back(p);
@@ -87,10 +90,12 @@ void Process::runNextInstruction(std::vector<Var>& memory) {
     }
 
     ProcessInstructions& instr = instructions[instruction_lines_current];
-    std::string result = instr.runInstruction(memory);
+
+    std::string processName = "process_" + std::to_string(id);
+    std::string result = instr.runInstruction(memory, processName); // ✅ FIXED
 
     if (instr.instruction_type == "SLEEP" && instr.trigger_sleep) {
-        this->setSleep(currentQuantumCycle + instr.constant1);  // delay process
+        this->setSleep(currentQuantumCycle + instr.constant1);
     }
 
     std::cout << "[P" << id << "] " << result << "\n";

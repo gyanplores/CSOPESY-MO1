@@ -59,10 +59,12 @@ void MainConsole::process(){
         case StringCode::exit:
             ConsoleManager::get_instance()->exit_application();
             break;
+
         case StringCode::clear:
             system("cls");
             onEnabled();
             break;
+
         case StringCode::help:
             std::cout << "Available commands:\n"
                       << "  exit            - Quit the program\n"
@@ -72,12 +74,16 @@ void MainConsole::process(){
                       << "  screen          - Perform screen-related action\n"
                       << "  scheduler-test  - Test the scheduler\n"
                       << "  scheduler-stop  - Stop the scheduler\n"
-                      << "  report-util     - Run report utility\n";
+                      << "  report-util     - Run report utility\n"
+                      << "  process-smi      - Show memory summary and process usage\n"
+                      << "  vmstat           - Show detailed VM and memory page stats\n";
             break;
+
         case StringCode::initialize:
             ConsoleManager::get_instance()->initialize_console();
             this->initialized = 1;
             break;
+
         case StringCode::screen:
             if(this->initialized == 1){
                 ConsoleManager::get_instance()->switch_console("SCREEN_VIEW");
@@ -85,6 +91,7 @@ void MainConsole::process(){
                 std::cout << "Please use initialize command first..\n"; 
             }
             break;
+
         case StringCode::scheduler_test:
             if(this->initialized == 1){
                 auto sched_console = std::dynamic_pointer_cast<SchedulingConsole>(
@@ -100,6 +107,7 @@ void MainConsole::process(){
                 std::cout << "Please use initialize command first..\n"; 
             }
             break;
+
         case StringCode::scheduler_stop:
             if (this->initialized == 1) {
                 auto sched_console = std::dynamic_pointer_cast<SchedulingConsole>(
@@ -115,13 +123,56 @@ void MainConsole::process(){
                 std::cout << "Please use initialize command first..\n"; 
             }
             break;
+
         case StringCode::report_util:
-            if(this->initialized == 1){
-                ConsoleManager::get_instance()->switch_console("SCREEN_VIEW");
+            if (this->initialized == 1) {
+                auto screen_console = std::dynamic_pointer_cast<Screen>(
+                    ConsoleManager::get_instance()->getConsoleTable().at("SCREEN_VIEW")
+                );
+
+                if (screen_console) {
+                    screen_console->generateFile();
+                    std::cout << "[Main] Report generated and saved.\n";
+                } else {
+                    std::cout << "Error: Could not access Screen console.\n";
+                }
             } else {
                 std::cout << "Please use initialize command first..\n"; 
             }
             break;
+
+        case StringCode::process_smi:
+            if (this->initialized == 1) {
+                auto screen_console = std::dynamic_pointer_cast<Screen>(
+                    ConsoleManager::get_instance()->getConsoleTable().at("SCREEN_VIEW")
+                );
+
+                if (screen_console) {
+                    screen_console->showProcessSMI();
+                } else {
+                    std::cout << "Error: Could not access Screen console.\n";
+                }
+            } else {
+                std::cout << "Please use initialize command first..\n"; 
+            }
+            break;
+
+        case StringCode::vmstat:
+            if (this->initialized == 1) {
+                auto screen_console = std::dynamic_pointer_cast<Screen>(
+                    ConsoleManager::get_instance()->getConsoleTable().at("SCREEN_VIEW")
+                );
+
+                if (screen_console) {
+                    screen_console->showVMStat();
+                } else {
+                    std::cout << "Error: Could not access Screen console.\n";
+                }
+            } else {
+                std::cout << "Please use initialize command first..\n"; 
+            }
+            break;
+
         case StringCode::unknown:
             std::cout << "error: unknown command. Please type a valid command.\n";
             break;
@@ -154,5 +205,10 @@ MainConsole::StringCode MainConsole::hashString(const std::string& str) {
     if (str == "scheduler-test") return StringCode::scheduler_test;
     if (str == "scheduler-stop") return StringCode::scheduler_stop;
     if (str == "report-util") return StringCode::report_util;
+    if (str == "process-smi") return StringCode::process_smi;
+    if (str == "vmstat") return StringCode::vmstat;
+    if (str == "process-smi") return StringCode::process_smi;
+    if (str == "vmstat")      return StringCode::vmstat;
+
     return StringCode::unknown;
 }

@@ -9,9 +9,11 @@ public:
     void onEnabled() override;
     void display() override;
     void process() override;
+    void generateFile() const;
+    void showProcessSMI() const;
+    void showVMStat() const;
 
 protected:
     void printProcess(std::string processName);
     void printProcess() const;
-    void generateFile() const;
 };
