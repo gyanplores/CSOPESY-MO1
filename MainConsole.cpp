@@ -102,25 +102,6 @@ void MainConsole::process(){
         return;
     }
 
-    // Existing screen -s handler
-    if (command.rfind("screen -s", 0) == 0 && command.length() > 10) {
-        if(this->initialized == 1){
-            std::string process_name = command.substr(10);
-            ConsoleManager::get_instance()->switch_console("PROC");
-            auto proc_screen = std::dynamic_pointer_cast<ProcessScreen>(
-                ConsoleManager::get_instance()->getConsoleTable().at("PROC")
-            );
-            if (proc_screen) {
-                proc_screen->setProcessName(process_name);
-            } else {
-                std::cout << "Could not access ProcessScreen.\n";
-            }
-            return;
-        } else {
-            std::cout << "Please use initialize command first..\n"; 
-        }
-    }
-
     tokenizeCommand(command, setcommand, name); // Tokenize command
 
     switch (hashString(setcommand)) {
@@ -140,7 +121,9 @@ void MainConsole::process(){
                       << "  screen          - Perform screen-related action\n"
                       << "  scheduler-test  - Test the scheduler\n"
                       << "  scheduler-stop  - Stop the scheduler\n"
-                      << "  report-util     - Run report utility\n";
+                      << "  report-util     - Run report utility\n"
+                      << "  process-smi      - Show memory summary and process usage\n"
+                      << "  vmstat           - Show detailed VM and memory page stats\n";
             break;
         case StringCode::initialize:
             ConsoleManager::get_instance()->initialize_console();
@@ -199,6 +182,37 @@ void MainConsole::process(){
                 std::cout << "Please use initialize command first..\n"; 
             }
             break;
+        case StringCode::process_smi:
+            if (this->initialized == 1) {
+                auto screen_console = std::dynamic_pointer_cast<Screen>(
+                    ConsoleManager::get_instance()->getConsoleTable().at("SCREEN_VIEW")
+                );
+
+                if (screen_console) {
+                    screen_console->showProcessSMI();
+                } else {
+                    std::cout << "Error: Could not access Screen console.\n";
+                }
+            } else {
+                std::cout << "Please use initialize command first..\n"; 
+            }
+            break;
+
+        case StringCode::vmstat:
+            if (this->initialized == 1) {
+                auto screen_console = std::dynamic_pointer_cast<Screen>(
+                    ConsoleManager::get_instance()->getConsoleTable().at("SCREEN_VIEW")
+                );
+
+                if (screen_console) {
+                    screen_console->showVMStat();
+                } else {
+                    std::cout << "Error: Could not access Screen console.\n";
+                }
+            } else {
+                std::cout << "Please use initialize command first..\n"; 
+            }
+            break;
 
         case StringCode::unknown:
             std::cout << "error: unknown command. Please type a valid command.\n";
@@ -232,5 +246,10 @@ MainConsole::StringCode MainConsole::hashString(const std::string& str) {
     if (str == "scheduler-test") return StringCode::scheduler_test;
     if (str == "scheduler-stop") return StringCode::scheduler_stop;
     if (str == "report-util") return StringCode::report_util;
+    if (str == "process-smi") return StringCode::process_smi;
+    if (str == "vmstat") return StringCode::vmstat;
+    if (str == "process-smi") return StringCode::process_smi;
+    if (str == "vmstat")      return StringCode::vmstat;
+
     return StringCode::unknown;
 }
