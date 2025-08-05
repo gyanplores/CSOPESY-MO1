@@ -171,6 +171,7 @@ public:
     }
 
     int evictPage() {
+        //std::cout<<"Evict page called"<<std::endl;
         for (int i = 0; i < frameTable.size(); ++i) {
             if (frameTable[i].allocated) {
                 std::string victimProc = frameTable[i].processName;
