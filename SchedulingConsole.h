@@ -30,6 +30,16 @@ private:
 public:
     SchedulingConsole();
 
+    static inline std::string SCHEDULER_TYPE = "rr";
+    static inline int QUANTUM_CYCLES = 4;
+    static inline int BATCH_PROCESS_FREQ = 1;
+    static inline int MIN_INS = 100;
+    static inline int MAX_INS = 100;
+    static inline int MAX_MEMORY = 16384;
+    static inline int MEM_PER_FRAME = 1024;
+    static inline int MIN_MEM_PER_PROC = 4096;
+    static inline int MAX_MEM_PER_PROC = 4096;
+
     // Prevent copying to avoid atomic copy errors
     SchedulingConsole(const SchedulingConsole&) = delete;
     SchedulingConsole& operator=(const SchedulingConsole&) = delete;

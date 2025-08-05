@@ -1,4 +1,4 @@
-Timestamp: 08/05/2025 16:51:09
+Timestamp: 08/05/2025 19:35:59
 Number of processes in memory: 1
 Total external fragmentation in KB: 0
 

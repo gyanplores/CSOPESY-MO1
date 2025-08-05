@@ -8,6 +8,7 @@
 #include <sstream>
 #include <Windows.h>
 #include <string>
+#include <algorithm>
 
 ConsoleManager* ConsoleManager::sharedInstance = nullptr;
 
@@ -37,18 +38,76 @@ void ConsoleManager::initialize_console(){
             int value;
             iss >> value;
             CORE::N_CORE = value;
-            std::cout << "[Config] Set number of cores to " << CORE::N_CORE << "\n";
+            std::cout << "\n[Config] Set number of cores to " << CORE::N_CORE << "\n";
         }
-        if (key == "delay-per-exec"){
+        else if (key == "scheduler") {
+            std::string sched;
+            iss >> sched;
+        
+            sched.erase(std::remove(sched.begin(), sched.end(), '"'), sched.end());
+
+            SchedulingConsole::SCHEDULER_TYPE = sched;
+            std::cout << "[Config] Set scheduler to " << SchedulingConsole::SCHEDULER_TYPE << "\n";
+        }
+        else if (key == "quantum-cycles") {
+            int value;
+            iss >> value;
+            SchedulingConsole::QUANTUM_CYCLES = value;
+            std::cout << "[Config] Set quantum cycles to " << SchedulingConsole::QUANTUM_CYCLES << "\n";
+        }
+        else if (key == "batch-process-freq") {
+            int value;
+            iss >> value;
+            SchedulingConsole::BATCH_PROCESS_FREQ = value;
+            std::cout << "[Config] Set batch process frequency to " << SchedulingConsole::BATCH_PROCESS_FREQ << "\n";
+        }
+        else if (key == "min-ins") {
+            int value;
+            iss >> value;
+            SchedulingConsole::MIN_INS = value;
+            std::cout << "[Config] Set minimum instructions to " << SchedulingConsole::MIN_INS << "\n";
+        }
+        else if (key == "max-ins") {
+            int value;
+            iss >> value;
+            SchedulingConsole::MAX_INS = value;
+            std::cout << "[Config] Set maximum instructions to " << SchedulingConsole::MAX_INS << "\n";
+        }
+        else if (key == "delay-per-exec") {
             int value;
             iss >> value;
             CORE::DELAY = value;
-            std::cout << "[Config] set delay to " << CORE::DELAY << "\n";
+            std::cout << "[Config] Set delay per instruction to " << CORE::DELAY << " \n";
+        }
+        else if (key == "max-overall-mem") {
+            int value;
+            iss >> value;
+            SchedulingConsole::MAX_MEMORY = value;
+            std::cout << "[Config] Set max overall memory to " << SchedulingConsole::MAX_MEMORY << " \n";
+        }
+        else if (key == "mem-per-frame") {
+            int value;
+            iss >> value;
+            SchedulingConsole::MEM_PER_FRAME = value;
+            std::cout << "[Config] Set memory per frame to " << SchedulingConsole::MEM_PER_FRAME << " \n";
+        }
+        else if (key == "min-mem-per-proc") {
+            int value;
+            iss >> value;
+            SchedulingConsole::MIN_MEM_PER_PROC = value;
+            std::cout << "[Config] Set min memory per process to " << SchedulingConsole::MIN_MEM_PER_PROC << " \n";
+        }
+        else if (key == "max-mem-per-proc") {
+            int value;
+            iss >> value;
+            SchedulingConsole::MAX_MEM_PER_PROC = value;
+            std::cout << "[Config] Set max memory per process to " << SchedulingConsole::MAX_MEM_PER_PROC << " \n";
         }
     }
 
     file.close();
 }
+
 
 void ConsoleManager::draw_console() const {
     this->curr_console->display();
