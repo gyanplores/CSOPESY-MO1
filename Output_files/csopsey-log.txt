@@ -1,28 +1,18 @@
-CPU utilization: 
-Cores used: 4
-Cores available: 0
+CPU utilization: 0%
+Cores used: 0
+Cores available: 2
 -----------------------------
 Running processes:
 
 Finished processes:
-process00 (Thu Jun 26 18:18:12 2025
-) Finished 100 / 100
-process01 (Thu Jun 26 18:18:12 2025
-) Finished 100 / 100
-process02 (Thu Jun 26 18:18:12 2025
-) Finished 100 / 100
-process03 (Thu Jun 26 18:18:12 2025
-) Finished 100 / 100
-process04 (Thu Jun 26 18:18:23 2025
-) Finished 100 / 100
-process05 (Thu Jun 26 18:18:23 2025
-) Finished 100 / 100
-process06 (Thu Jun 26 18:18:23 2025
-) Finished 100 / 100
-process07 (Thu Jun 26 18:18:23 2025
-) Finished 100 / 100
-process08 (Thu Jun 26 18:18:34 2025
-) Finished 100 / 100
-process09 (Thu Jun 26 18:18:34 2025
-) Finished 100 / 100
+process00 (08/05/2025 12:16:28PM) Finished 2 / 6
+process01 (08/05/2025 12:16:28PM) Finished 2 / 6
+process02 (08/05/2025 12:16:28PM) Finished 4 / 6
+process03 (08/05/2025 12:16:28PM) Finished 4 / 6
+process04 (08/05/2025 12:16:28PM) Finished 4 / 6
+process05 (08/05/2025 12:16:28PM) Finished 4 / 6
+process06 (08/05/2025 12:16:28PM) Finished 4 / 6
+process07 (08/05/2025 12:16:28PM) Finished 4 / 6
+process08 (08/05/2025 12:16:28PM) Finished 4 / 6
+process09 (08/05/2025 12:16:28PM) Finished 4 / 6
 --------------------------------------------

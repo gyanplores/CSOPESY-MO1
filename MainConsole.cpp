@@ -116,12 +116,22 @@ void MainConsole::process(){
             }
             break;
         case StringCode::report_util:
-            if(this->initialized == 1){
-                ConsoleManager::get_instance()->switch_console("SCREEN_VIEW");
+            if (this->initialized == 1) {
+                auto screen_console = std::dynamic_pointer_cast<Screen>(
+                    ConsoleManager::get_instance()->getConsoleTable().at("SCREEN_VIEW")
+                );
+
+                if (screen_console) {
+                    screen_console->generateFile();
+                    std::cout << "[Main] Report generated and saved.\n";
+                } else {
+                    std::cout << "Error: Could not access Screen console.\n";
+                }
             } else {
                 std::cout << "Please use initialize command first..\n"; 
             }
             break;
+
         case StringCode::unknown:
             std::cout << "error: unknown command. Please type a valid command.\n";
             break;
