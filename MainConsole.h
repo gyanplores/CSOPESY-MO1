@@ -22,6 +22,8 @@ private:
         scheduler_test,
         scheduler_stop,
         report_util,
+        process_smi,
+        vmstat,
         unknown
     };
     void tokenizeCommand(const std::string& command, std::string& setcommand, std::string& name);

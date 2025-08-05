@@ -35,7 +35,7 @@ void CORE::run_print(Process& p) {
         instr.instruction_type = "SLEEP";  // Replace this with actual loaded instruction logic
         instr.constant1 = 2;               // sleep for 2 ticks
 
-        std::string log = instr.runInstruction({});  // supply actual memory if needed
+        std::string log = instr.runInstruction({}, "process_" + std::to_string(p.id));
 
         // Check if this is a SLEEP instruction and set wakeAtTick
         if (instr.instruction_type == "SLEEP") {
