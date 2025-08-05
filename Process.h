@@ -33,6 +33,8 @@ public:
     int remainingTime;
 
     bool isInMemory = false;
+    
+    std::string customName;
 
     time_t timestamp;
 

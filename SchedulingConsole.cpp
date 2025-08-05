@@ -103,6 +103,29 @@ void SchedulingConsole::stopScheduler() {
     stopRequested = true;
 }
 
+void SchedulingConsole::startScheduler() {
+    stopRequested = false;
+    schedulerThread = std::thread(&SchedulingConsole::runSchedulerInBackground, this);
+    schedulerThread.detach();
+}
+
+void SchedulingConsole::createProcessByName(const std::string& name) {
+    std::lock_guard<std::mutex> lock(processMutex);
+
+    int newId = processList.size();
+    Process p(newId, 3); // example: 3 instructions
+    p.customName = name;
+
+    // Example: give starting PRINT instruction
+    ProcessInstructions instr;
+    instr.instruction_type = "PRINT";
+    instr.constant_string = "Process " + name + " started.";
+    p.instructions.push_back(instr);
+
+    processList.push_back(p);
+}
+
+
 void SchedulingConsole::process() {
     std::string cmd;
     std::getline(std::cin, cmd);

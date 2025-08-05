@@ -51,7 +51,31 @@ void MainConsole::process(){
         } else {
             std::cout << "Please use initialize command first..\n"; 
         }
+    }else if (command.rfind("screen -c", 0) == 0 && command.length() > 10) {
+        std::string process_name = command.substr(10);
+
+        // Get scheduler console
+        auto sched_console = std::dynamic_pointer_cast<SchedulingConsole>(
+            ConsoleManager::get_instance()->getConsoleTable().at("SCHEDULING_CONSOLE")
+        );
+
+        if (sched_console) {
+            // Start scheduler if not running
+            if (!sched_console->isRunning()) {
+                sched_console->startScheduler();
+            }
+
+            // Create the process
+            sched_console->createProcessByName(process_name);
+            std::cout << "Process '" << process_name << "' created and scheduled.\n";
+        } else {
+            std::cout << "Could not access SchedulingConsole.\n";
+        }
+
+        return;
     }
+
+
 
     tokenizeCommand(command, setcommand, name); // Tokenize command
 

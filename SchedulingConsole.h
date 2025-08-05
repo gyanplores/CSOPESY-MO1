@@ -41,4 +41,8 @@ public:
     void process() override;
     void runSchedulerInBackground(); 
     void stopScheduler(); // Method to stop scheduler
+    bool isRunning() const { return !stopRequested; }
+    void startScheduler();
+    void createProcessByName(const std::string& name);
+
 };
