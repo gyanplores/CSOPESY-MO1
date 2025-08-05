@@ -19,6 +19,8 @@ private:
     std::vector<int> coreUtilization;
     std::mutex utilizationMutex;
 
+    std::vector<Process> finishedProcesses;
+
     std::atomic<bool> stopRequested{false}; // Proper initialization with brace
 
     MemoryManager memoryManager{16384, 4096};
@@ -39,4 +41,6 @@ public:
     void process() override;
     void runSchedulerInBackground(); 
     void stopScheduler(); // Method to stop scheduler
+
+    void createAndRunProcess(const std::string& processName, int memSize, const std::string& instructions);
 };

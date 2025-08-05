@@ -1,4 +1,7 @@
 #include "ConsoleManager.h"
+#include "MemoryManager.h"
+
+MemoryManager memoryManager(16384, 4096);
 
 int main(){
     bool running = true;
