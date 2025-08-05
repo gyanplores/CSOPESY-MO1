@@ -3,6 +3,7 @@
 #include <vector>
 #include <ctime>
 #include <string>
+#include "ProcessInstructions.h"  // Required to define the instruction type
 
 using String = std::string;
 
@@ -13,37 +14,57 @@ struct InstructionLog {
 };
 
 class Process {
-    public:
-        enum ProcessState{
-            READY = 0,
-            RUNNING,
-            WAITING,
-            FINISHED
-        };
-    public:
-        int id; //ID of process
-        int instruction_lines_max; //all lines of instructions of process - defaults to print currently
-        int instruction_lines_current = 0;
+public:
+    enum ProcessState {
+        READY = 0,
+        RUNNING,
+        WAITING,
+        FINISHED
+    };
 
-        int current_core;
+public:
+    int id; // ID of process
+    int instruction_lines_max; // total instructions
+    int instruction_lines_current = 0;
 
-        int burstTime;
-        int remainingTime;
+    int current_core;
 
-        time_t timestamp;
+    int burstTime;
+    int remainingTime;
 
-        ProcessState state = READY;
+    bool isInMemory = false;
 
-        std::vector<InstructionLog> instructionLogs;
-        std::vector<String> var_names;
+    time_t timestamp;
 
-    public:
-        Process(int i, int n);
-        std::string setCurrentTime();
-        static std::vector<Process> print_processes();
-        
-        void setRunning();
-        void setFinished();
+    ProcessState state = READY;
 
-        void logInstruction(int coreId);
+    std::vector<InstructionLog> instructionLogs;
+    std::vector<String> var_names;
+
+    // Hold the actual instructions to run
+    std::vector<ProcessInstructions> instructions;
+
+    // For SLEEP(X)
+    int wakeAtTick = -1;
+
+public:
+    Process(int i, int n);
+    std::string setCurrentTime();
+    static std::vector<Process> print_processes();
+
+    void setRunning();
+    void setFinished();
+
+    void logInstruction(int coreId, const std::string& message);
+
+    void setSleep(int wakeTick) {   
+        state = WAITING;
+        wakeAtTick = wakeTick;
+    }
+
+    bool isSleeping(int currentTick) const {
+        return wakeAtTick != -1 && currentTick < wakeAtTick;
+    }
+
+    void runNextInstruction(std::vector<Var>& memory);
 };

@@ -33,13 +33,13 @@ void Screen::process() {
 }
 
 void Screen::printProcess(std::string processName){
-    system("cls");
-    std::cout.flush();
+    //system("cls");
+    //std::cout.flush();
 
     int processId = std::stoi(processName.substr(8));
 
     auto* scheduler = dynamic_cast<SchedulingConsole*>(
-    ConsoleManager::get_instance()->getConsoleTable().at("SCHEDULE_CONSOLE").get());
+        ConsoleManager::get_instance()->getConsoleTable().at("SCHEDULE_CONSOLE").get());
 
     if (!scheduler) {
         std::cout << "[Screen] Unable to access scheduler.\n";
@@ -49,9 +49,9 @@ void Screen::printProcess(std::string processName){
     std::lock_guard<std::mutex> lock(scheduler->processMutex);
 
     const Process* targetProc = nullptr;
-    for (const auto& proc : scheduler->processList) {
-        if (proc.id == processId) {
-            targetProc = &proc;
+    for (const auto& proc_ptr : scheduler->processList) {
+        if (proc_ptr->id == processId) {
+            targetProc = proc_ptr.get();
             break;
         }
     }
@@ -74,22 +74,15 @@ void Screen::printProcess(std::string processName){
     if (targetProc->state == Process::RUNNING) {
             std::cout << "\nCurrent Instruction Line: " << targetProc->instruction_lines_current << "\n";
             std::cout << "Lines of code: " << targetProc->instruction_lines_max << "\n";
-        }
+    }
     else {
         std::cout << "Finished! \n";
     }
-
 }
 
-    
-
 void Screen::printProcess() const {
-    system("cls");
-    std::cout.flush();
-
     auto* scheduler = dynamic_cast<SchedulingConsole*>(
-    ConsoleManager::get_instance()->getConsoleTable().at("SCHEDULE_CONSOLE").get());
-
+        ConsoleManager::get_instance()->getConsoleTable().at("SCHEDULE_CONSOLE").get());
 
     if (!scheduler) {
         std::cout << "[Screen] Unable to fetch scheduler info.\n";
@@ -97,42 +90,53 @@ void Screen::printProcess() const {
     }
 
     std::lock_guard<std::mutex> lock(scheduler->processMutex);
-    std::lock_guard<std::mutex> locK(scheduler->utilizationMutex);
+    std::lock_guard<std::mutex> utilizationLock(scheduler->utilizationMutex);
 
     int totalUsed = 0;
-    for (int val : scheduler->coreUtilization){
+    for (int val : scheduler->coreUtilization) {
         if (val > 0) totalUsed++;
     }
 
-    std::cout << "CPU utilization: " << "\n";
-    std::cout << "Cores used: " << totalUsed <<"\n";
+    std::cout << "CPU utilization: \n";
+    std::cout << "Cores used: " << totalUsed << "\n";
     std::cout << "Cores available: " << CORE::N_CORE - totalUsed << "\n";
 
     std::cout << "-----------------------------\n";
-    std::cout << "running processes:\n";
+    std::cout << "Running processes:\n";
 
-    for (const auto& proc : scheduler->processList) {
-        if (proc.state == Process::RUNNING) {
-            std::cout << "process" << std::setw(2) << std::setfill('0') << proc.id
-                      << " (" << ctime(&proc.timestamp)
-                      << ") Core: " << proc.current_core << " "
-                      << proc.instruction_lines_current << " / "
-                      << proc.instruction_lines_max << "\n";
+    for (const auto& proc_ptr : scheduler->processList) {
+        if (proc_ptr->state == Process::RUNNING) {
+            std::cout << "process" << std::setw(2) << std::setfill('0') << proc_ptr->id
+                      << " (" << ctime(&proc_ptr->timestamp)
+                      << ") Core: " << proc_ptr->current_core << " "
+                      << proc_ptr->instruction_lines_current << " / "
+                      << proc_ptr->instruction_lines_max << "\n";
         }
     }
 
     std::cout << "\nFinished processes:\n";
-    for (const auto& proc : scheduler->processList) {
-        if (proc.state == Process::FINISHED) {
-            std::cout << "process" << std::setw(2) << std::setfill('0') << proc.id
-                      << " (" << ctime(&proc.timestamp)
+
+    for (const auto& proc_ptr : scheduler->processList) {
+        if (proc_ptr->state == Process::FINISHED) {
+            std::cout << "process" << std::setw(2) << std::setfill('0') << proc_ptr->id
+                      << " (" << ctime(&proc_ptr->timestamp)
                       << ") Finished "
-                      << proc.instruction_lines_current << " / "
-                      << proc.instruction_lines_max << "\n";
+                      << proc_ptr->instruction_lines_current << " / "
+                      << proc_ptr->instruction_lines_max << "\n";
         }
     }
+
+    for (const auto& proc_ptr : scheduler->finishedProcesses) {
+        std::cout << "process" << std::setw(2) << std::setfill('0') << proc_ptr->id
+                  << " (" << ctime(&proc_ptr->timestamp)
+                  << ") Finished "
+                  << proc_ptr->instruction_lines_current << " / "
+                  << proc_ptr->instruction_lines_max << "\n";
+    }
+
     std::cout << "--------------------------------------------\n";
 }
+
 
 void Screen::generateFile() const {
     std::ofstream file("output_files/csopsey-log.txt");
@@ -151,7 +155,7 @@ void Screen::generateFile() const {
     }
 
     std::lock_guard<std::mutex> lock(scheduler->processMutex);
-    std::lock_guard<std::mutex> locK(scheduler->utilizationMutex);
+    std::lock_guard<std::mutex> utilizationLock(scheduler->utilizationMutex);
 
     int totalUsed = 0;
     for (int val : scheduler->coreUtilization){
@@ -165,29 +169,38 @@ void Screen::generateFile() const {
     file << "-----------------------------\n";
     file << "Running processes:\n";
 
-    for (const auto& proc : scheduler->processList) {
-        if (proc.state == Process::RUNNING) {
-            file << "process" << std::setw(2) << std::setfill('0') << proc.id
-                 << " (" << ctime(&proc.timestamp)
-                 << ") Core: " << proc.current_core << " "
-                 << proc.instruction_lines_current << " / "
-                 << proc.instruction_lines_max << "\n";
+    for (const auto& proc_ptr : scheduler->processList) {
+        if (proc_ptr->state == Process::RUNNING) {
+            file << "process" << std::setw(2) << std::setfill('0') << proc_ptr->id
+                 << " (" << ctime(&proc_ptr->timestamp)
+                 << ") Core: " << proc_ptr->current_core << " "
+                 << proc_ptr->instruction_lines_current << " / "
+                 << proc_ptr->instruction_lines_max << "\n";
         }
     }
 
     file << "\nFinished processes:\n";
-    for (const auto& proc : scheduler->processList) {
-        if (proc.state == Process::FINISHED) {
-            file << "process" << std::setw(2) << std::setfill('0') << proc.id
-                 << " (" << ctime(&proc.timestamp)
+
+    for (const auto& proc_ptr : scheduler->processList) {
+        if (proc_ptr->state == Process::FINISHED) {
+            file << "process" << std::setw(2) << std::setfill('0') << proc_ptr->id
+                 << " (" << ctime(&proc_ptr->timestamp)
                  << ") Finished "
-                 << proc.instruction_lines_current << " / "
-                 << proc.instruction_lines_max << "\n";
+                 << proc_ptr->instruction_lines_current << " / "
+                 << proc_ptr->instruction_lines_max << "\n";
         }
     }
+
+    for (const auto& proc_ptr : scheduler->finishedProcesses) {
+        file << "process" << std::setw(2) << std::setfill('0') << proc_ptr->id
+             << " (" << ctime(&proc_ptr->timestamp)
+             << ") Finished "
+             << proc_ptr->instruction_lines_current << " / "
+             << proc_ptr->instruction_lines_max << "\n";
+    }
+
 
     file << "--------------------------------------------\n";
     file.close();
     std::cout << "[Screen] Report saved to csopsey-log.txt\n";
 }
-

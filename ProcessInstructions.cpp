@@ -13,6 +13,8 @@ String ProcessInstructions::runInstruction(std::vector<Var> memory) {
         return runAdd(memory);
     } else if (this->instruction_type == "SUBTRACT") {
         return runSubtract(memory);
+    } else if (this->instruction_type == "SLEEP") {
+        return runSleep(memory);
     }
     return "Unknown instruction.";
 }
@@ -110,4 +112,10 @@ String ProcessInstructions::runSubtract(std::vector<Var> memory) {
     return "Invalid SUBTRACT variation.";
 }
 
-void runSleep() {}
+// SLEEP(X) implementation
+String ProcessInstructions::runSleep(std::vector<Var> memory) {
+    String log = "Process instructed to sleep for " + std::to_string(this->constant1) + " quantum cycles.";
+    this->trigger_sleep = true;  // mark this instruction to delay the process
+    return log;
+}
+

@@ -10,6 +10,12 @@
 #include <thread>
 #include <vector>
 
+#ifdef min
+#undef min
+#endif
+#include <algorithm>
+#include <memory>
+
 MemoryManager memoryManager(16384, 4096);  // total memory, memory per process
 int currentQuantumCycle = 0;
 
@@ -18,19 +24,16 @@ SchedulingConsole::SchedulingConsole() : Console("SCHEDULING_CONSOLE") {}
 void SchedulingConsole::onEnabled() {
     std::lock_guard<std::mutex> lock(processMutex);
     processList.clear();
+    finishedProcesses.clear(); 
 
-    for (int i = 0; i < 5; ++i) {
-        Process p(i, 0);
-        p.burstTime = 5 + i;
-        p.remainingTime = p.burstTime;
-        processList.push_back(p);
+    auto raw_processes = Process::print_processes();
+    for (auto& p : raw_processes) {
+        processList.push_back(std::make_shared<Process>(p));
     }
 
-    std::cout << "[Scheduler] Round Robin Scheduler initialized with dummy processes.\n";
+    std::cout << "[Scheduler] Round Robin Scheduler initialized with SLEEP test processes.\n";
 
     stopRequested = false;
-    schedulerThread = std::thread(&SchedulingConsole::runSchedulerInBackground, this);
-    schedulerThread.detach();
 }
 
 void SchedulingConsole::display() {
@@ -41,59 +44,80 @@ void SchedulingConsole::runSchedulerInBackground() {
     isSchedulerRunning = true;
 
     {
-        std::lock_guard<std::mutex> lock(processMutex);
-        processList = Process::print_processes();
-
-        for (auto& p : processList) {
-            p.burstTime = 5 + p.id;
-            p.remainingTime = p.burstTime;
-        }
+        std::lock_guard<std::mutex> utilLock(utilizationMutex);
+        coreUtilization.assign(CORE::N_CORE, 0);
     }
 
     while (isSchedulerRunning && !stopRequested) {
         std::lock_guard<std::mutex> lock(processMutex);
         if (processList.empty()) break;
 
-        Process p = processList.front();
+        auto p = processList.front();
 
-        if (!memoryManager.allocateMemory("process_" + std::to_string(p.id))) {
-            std::cout << "[MEMORY] Not enough memory for process_" << p.id << ". Waiting...\n";
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        if (p->isSleeping(currentQuantumCycle)) {
+            std::cout << "[Scheduler] P" << p->id << " is sleeping until tick " << p->wakeAtTick << ".\n";
+            processList.push_back(p);
+            processList.erase(processList.begin());
             continue;
         }
 
-        processList.erase(processList.begin());
+        if (!p->isInMemory) {
+            if (!memoryManager.allocateMemory("process_" + std::to_string(p->id))) {
+                std::cout << "[MEMORY] Not enough memory for process_" << p->id << ". Waiting...\n";
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                processList.erase(processList.begin());
+                continue;
+            }
+            p->isInMemory = true;
+        }
 
-        int runTime = std::min(quantum, p.remainingTime);
-        p.remainingTime -= runTime;
+        {
+            std::lock_guard<std::mutex> utilLock(utilizationMutex);
+            if (p->current_core >= 0 && p->current_core < coreUtilization.size()) {
+                coreUtilization[p->current_core] = 1;
+            }
+        }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(runTime * 100));
+        int timeUsed = 0;
+        while (timeUsed < quantum && p->state != Process::FINISHED && !p->isSleeping(currentQuantumCycle)) {
+            p->runNextInstruction(memoryManager.getMemory());
+            timeUsed++;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+
+        p->remainingTime -= timeUsed;
 
         if (stopRequested) {
             std::cout << "[Scheduler] Stopping scheduler as requested.\n";
-            memoryManager.deallocateMemory("process_" + std::to_string(p.id));
+            memoryManager.deallocateMemory("process_" + std::to_string(p->id));
+            p->isInMemory = false;
             break;
         }
 
-        // Generate snapshot after each quantum cycle
         currentQuantumCycle++;
         memoryManager.generateMemorySnapshot(currentQuantumCycle);
         std::cout << "[MEMORY] Snapshot saved for quantum: " << currentQuantumCycle << "\n";
 
-        if (p.remainingTime > 0) {
+        if (p->remainingTime > 0 && p->state != Process::FINISHED) {
             processList.push_back(p);
         } else {
-            std::cout << "[DONE] P" << p.id << " completed.\n";
-            memoryManager.deallocateMemory("process_" + std::to_string(p.id));
+            std::cout << "[DONE] P" << p->id << " completed.\n";
+            memoryManager.deallocateMemory("process_" + std::to_string(p->id));
+            p->isInMemory = false;
+
+            finishedProcesses.push_back(p); 
         }
+
+        {
+            std::lock_guard<std::mutex> utilLock(utilizationMutex);
+            std::fill(coreUtilization.begin(), coreUtilization.end(), 0);
+        }
+
+        processList.erase(processList.begin());
     }
 
     std::cout << "[Scheduler] Round Robin scheduling completed.\n";
     isSchedulerRunning = false;
-}
-
-void SchedulingConsole::stopScheduler() {
-    stopRequested = true;
 }
 
 void SchedulingConsole::process() {
@@ -120,7 +144,8 @@ void SchedulingConsole::process() {
     } else if (cmd == "print") {
         std::cout << "[Scheduler] Starting print simulation in foreground...\n";
 
-        std::vector<Process> print_process = Process::print_processes();
+        std::vector<std::shared_ptr<Process>>& print_process = this->processList;
+
         std::vector<std::thread> threads;
         std::vector<CORE> cores;
 
@@ -131,13 +156,12 @@ void SchedulingConsole::process() {
         int i = 0;
         while (i < print_process.size()) {
             for (int j = 0; j < CORE::N_CORE && i < print_process.size(); j++, i++) {
-                threads.emplace_back(&CORE::run_print, &cores[j], std::ref(print_process[i]));
+                threads.emplace_back(&CORE::run_print, &cores[j], std::ref(*print_process[i]));
             }
 
             for (auto& t : threads) {
                 t.join();
             }
-
             threads.clear();
         }
 
@@ -145,4 +169,8 @@ void SchedulingConsole::process() {
     } else {
         std::cout << "Unknown command.\n";
     }
+}
+
+void SchedulingConsole::stopScheduler() {
+    stopRequested = true;
 }
