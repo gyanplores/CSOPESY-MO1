@@ -2,7 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
-#include "MemoryManager.h"
+#include <thread>
+
+extern MemoryManager memoryManager;
 
 CORE::CORE(int i) : id(i) {}
 
@@ -12,38 +14,50 @@ void CORE::run_print(Process& p) {
 
     std::string filename = "Output_files/process_" + std::to_string(p.id) + ".txt";
     std::ofstream file(filename);
+
     file << "Process Name:  process_" << p.id << "\nLogs:\n\n";
 
+    // Get the global tick
     extern int currentQuantumCycle;
     uint32_t& currentTick = (uint32_t&)currentQuantumCycle;
 
-    // Assume we have memory from MemoryManager
-    extern MemoryManager memoryManager;
-    auto& memory = memoryManager.getMemory();
+    // Shared process memory (persistent across instructions)
+    std::vector<Var> memory;
 
+    // Loop through instructions
     while (p.instruction_lines_current < p.instruction_lines_max) {
+        // Skip if process is sleeping
         if (p.isSleeping(currentTick)) {
-            std::string logMsg = p.setCurrentTime() + "  |  CORE: " + std::to_string(id)
-                               + " | Sleeping until tick " + std::to_string(p.wakeAtTick);
-            file << logMsg << "\n";
-            p.logInstruction(id, logMsg);
+            file << p.setCurrentTime() << "  |  CORE: " << id
+                 << " | Sleeping until tick " << p.wakeAtTick << "\n";
+            p.logInstruction(id);
             std::this_thread::sleep_for(std::chrono::milliseconds(CORE::DELAY));
             currentTick++;
             continue;
         }
 
+        // Get the current instruction
         ProcessInstructions& instr = p.instructions[p.instruction_lines_current];
-        std::string result = instr.runInstruction(memory);
 
-        if (instr.instruction_type == "SLEEP") {
-            p.wakeAtTick = currentTick + instr.constant1;
-            p.state = Process::WAITING;
+        // Run the instruction
+        std::string log = instr.runInstruction(memoryManager, memory);
+
+        // If it's a SLEEP instruction, set wake time
+        if (instr.instruction_type == "SLEEP" && instr.trigger_sleep) {
+            p.setSleep(currentTick + instr.constant1);
         }
 
-        file << p.setCurrentTime() << "  |  CORE: " << id << " | " << result << "\n";
-        p.logInstruction(id, result);
+        // Write log to file
+        file << p.setCurrentTime() << "  |  CORE: " << id
+             << " | " << log << "\n";
 
+        // Save instruction log
+        p.logInstruction(id);
+
+        // Move to next instruction
         p.instruction_lines_current++;
+
+        // Simulate CPU delay
         std::this_thread::sleep_for(std::chrono::milliseconds(CORE::DELAY));
         currentTick++;
     }

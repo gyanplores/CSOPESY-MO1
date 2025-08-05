@@ -1,9 +1,10 @@
 #include "Process.h"
+#include "MemoryManager.h"
 #include <iostream>
-#include <fstream> 
 #include <vector>
 #include <string>
 
+extern MemoryManager memoryManager;
 extern int currentQuantumCycle; // To access the scheduler's global quantum tick
 
 Process::Process(int i, int n) : id(i), instruction_lines_max(n) {
@@ -14,35 +15,44 @@ Process::Process(int i, int n) : id(i), instruction_lines_max(n) {
 }
 
 std::vector<Process> Process::print_processes() {
-    static std::vector<Process> v;
+    std::vector<Process> v;
 
     for (int i = 0; i < 10; i++) {
-        Process p(i, 3);  // 3 instructions for test
+        Process p(i, 0);
 
-        // Instruction 1: PRINT "Hello from P<i>"
+        // Build loop body
+        std::vector<ProcessInstructions> loopBody;
+
+        // PRINT "Hello from process_X"
         ProcessInstructions instr1;
         instr1.instruction_type = "PRINT";
         instr1.instruction_variation = 0;
         instr1.constant_string = "Hello from process_" + std::to_string(i);
+        loopBody.push_back(instr1);
 
-        // Instruction 2: SLEEP(2)
+        // SLEEP(2)
         ProcessInstructions instr2;
         instr2.instruction_type = "SLEEP";
         instr2.constant1 = 2;
-        instr2.trigger_sleep = true;
+        loopBody.push_back(instr2);
 
-        // Instruction 3: PRINT "Process <i> woke up"
+        // PRINT "Process X woke up"
         ProcessInstructions instr3;
         instr3.instruction_type = "PRINT";
         instr3.instruction_variation = 0;
         instr3.constant_string = "Process " + std::to_string(i) + " woke up.";
+        loopBody.push_back(instr3);
 
-        // Add to process
-        p.instructions.push_back(instr1);
-        p.instructions.push_back(instr2);
-        p.instructions.push_back(instr3);
+        // Wrap it in FOR([...], repeats=2)
+        ProcessInstructions forInstr;
+        forInstr.instruction_type = "FOR";
+        forInstr.repeatCount = 2;
+        forInstr.loopBody = loopBody;
 
-        // Set instruction max
+        // Expand the loop and assign to process
+        std::vector<ProcessInstructions> expanded = forInstr.processForLoop(forInstr);
+
+        p.instructions = expanded;
         p.instruction_lines_max = p.instructions.size();
 
         v.push_back(p);
@@ -67,7 +77,7 @@ std::string Process::setCurrentTime() {
     return thetime;
 }
 
-void Process::logInstruction(int coreId, const std::string& message) {
+void Process::logInstruction(int coreId) {
     time_t now;
     time(&now);
     char timeBuffer[80];
@@ -75,8 +85,7 @@ void Process::logInstruction(int coreId, const std::string& message) {
 
     InstructionLog log = {
         timeBuffer,
-        coreId,
-        message
+        coreId
     };
 
     instructionLogs.push_back(log);
@@ -89,22 +98,13 @@ void Process::runNextInstruction(std::vector<Var>& memory) {
     }
 
     ProcessInstructions& instr = instructions[instruction_lines_current];
-    std::string result = instr.runInstruction(memory);
+    std::string result = instr.runInstruction(memoryManager, memory);
 
     if (instr.instruction_type == "SLEEP" && instr.trigger_sleep) {
-        this->setSleep(currentQuantumCycle + instr.constant1);
+        this->setSleep(currentQuantumCycle + instr.constant1);  // delay process
     }
 
     std::cout << "[P" << id << "] " << result << "\n";
-    logInstruction(current_core, result);
-
-    std::string filename = "Output_files/process_" + std::to_string(id) + ".txt";
-    std::ofstream file(filename, std::ios::app); // append mode
-    if (file.tellp() == 0) { // If file is empty, write header
-        file << "Process Name: process_" << id << "\nLogs:\n\n";
-    }
-    file << setCurrentTime() << "  |  CORE: " << current_core << " | " << result << "\n";
-    file.close();
 
     instruction_lines_current++;
 }

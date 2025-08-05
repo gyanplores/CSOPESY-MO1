@@ -55,7 +55,7 @@ public:
     void setRunning();
     void setFinished();
 
-    void logInstruction(int coreId, const std::string& message);
+    void logInstruction(int coreId);
 
     void setSleep(int wakeTick) {   
         state = WAITING;

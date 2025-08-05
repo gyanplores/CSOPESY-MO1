@@ -5,25 +5,23 @@
 #include "Process.h"
 #include <mutex>
 #include <atomic>
-#include <memory>
-#include <vector>
 
 #include "Core.h"
 #include "MemoryManager.h"
+
 
 class SchedulingConsole : public Console {
 private:
     std::thread schedulerThread;
     bool isSchedulerRunning = false;
-
-    std::vector<std::shared_ptr<Process>> processList;  
-    std::vector<std::shared_ptr<Process>> finishedProcesses; 
-
+    std::vector<Process> processList;
     std::mutex processMutex;
     std::vector<int> coreUtilization;
     std::mutex utilizationMutex;
 
-    std::atomic<bool> stopRequested{false};
+    std::vector<Process> finishedProcesses;
+
+    std::atomic<bool> stopRequested{false}; // Proper initialization with brace
 
     MemoryManager memoryManager{16384, 4096};
     int quantum = 4;
@@ -44,6 +42,5 @@ public:
     void runSchedulerInBackground(); 
     void stopScheduler(); // Method to stop scheduler
 
-    std::vector<std::shared_ptr<Process>>& getProcessList() { return processList; }
-    std::vector<std::shared_ptr<Process>>& getFinishedProcesses() { return finishedProcesses; } 
+    void createAndRunProcess(const std::string& processName, int memSize, const std::string& instructions);
 };

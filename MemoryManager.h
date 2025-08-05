@@ -5,7 +5,9 @@
 #include <fstream>
 #include <iostream>
 #include <ctime>
+#include <unordered_map>
 #include <direct.h>   // Windows-specific for _mkdir
+#include <cstdint>
 #include "Variable.h" // Needed for Var type used by runInstruction
 
 struct MemoryBlock {
@@ -32,7 +34,8 @@ private:
     int totalMemory;
     int maxProcessMemory;
     std::vector<MemoryBlock> memoryBlocks;
-    std::vector<Var> memory;  // Used by instruction execution
+    std::vector<Var> memory;  
+    std::unordered_map<uint16_t, int> directMemoryMap; 
 
 public:
     MemoryManager(int totalMem, int maxProcMem)
@@ -65,7 +68,7 @@ public:
         for (auto it = memoryBlocks.begin(); it != memoryBlocks.end(); ++it) {
             if (it->allocated && it->processName == processName) {
                 it->allocated = false;
-                it->processName = "";
+                it->processName.clear();
 
                 if (it != memoryBlocks.begin()) {
                     auto prev = std::prev(it);
@@ -135,5 +138,23 @@ public:
 
     std::vector<Var>& getMemory() {
         return memory;
+    }
+
+    void writeToAddress(uint16_t address, int value) {
+        if (address >= totalMemory) {
+            std::cerr << "[MemoryManager] Write out of bounds at address " << address << "\n";
+            return;
+        }
+        directMemoryMap[address] = value;
+    }
+
+    int readFromAddress(uint16_t address) {
+        if (address >= totalMemory) {
+            std::cerr << "[MemoryManager] Read out of bounds at address " << address << "\n";
+            return 0;
+        }
+        auto it = directMemoryMap.find(address);
+        if (it != directMemoryMap.end()) return it->second;
+        return 0;
     }
 };

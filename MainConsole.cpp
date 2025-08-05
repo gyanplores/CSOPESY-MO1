@@ -2,12 +2,16 @@
 #include "ConsoleManager.h"
 #include "SchedulingConsole.h"
 #include "ProcessScreen.h"
+#include "MemoryManager.h"
 
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <vector>
 #include <cstdlib>
+#include <algorithm> 
+
+extern MemoryManager memoryManager;
 
 MainConsole::MainConsole() : Console("MAIN_CONSOLE"){}
 
@@ -48,6 +52,70 @@ void MainConsole::process(){
             }
 
             return; // Exit early
+        } else {
+            std::cout << "Please use initialize command first..\n"; 
+        }
+    }
+
+    if (command.rfind("screen -c", 0) == 0) {
+        if (this->initialized != 1) {
+            std::cout << "Please use initialize command first..\n";
+            return;
+        }
+
+        // Expected format: screen -c <process_name> <memory_size> "<instructions>"
+        std::istringstream iss(command);
+        std::string cmd, dashc, processName, memSizeStr;
+        if (!(iss >> cmd >> dashc >> processName >> memSizeStr)) {
+            std::cout << "Invalid command format.\n";
+            return;
+        }
+
+        int memSize = std::stoi(memSizeStr);
+        std::string instructions;
+        std::getline(iss, instructions);
+        
+        // Trim leading spaces and quotes from instructions
+        if (!instructions.empty() && instructions[0] == ' ') instructions.erase(0, 1);
+        if (!instructions.empty() && instructions.front() == '"') instructions.erase(0, 1);
+        if (!instructions.empty() && instructions.back() == '"') instructions.pop_back();
+
+        // Validate instruction count
+        size_t instrCount = std::count(instructions.begin(), instructions.end(), ';') + 1;
+        if (instrCount < 1 || instrCount > 50) {
+            std::cout << "invalid command: instruction count must be 1-50.\n";
+            return;
+        }
+
+        // Pass to SchedulingConsole
+        auto sched_console = std::dynamic_pointer_cast<SchedulingConsole>(
+            ConsoleManager::get_instance()->getConsoleTable().at("SCHEDULING_CONSOLE")
+        );
+
+        if (!sched_console) {
+            std::cout << "Error: Could not access SchedulingConsole.\n";
+            return;
+        }
+
+        sched_console->createAndRunProcess(processName, memSize, instructions);
+
+        return;
+    }
+
+    // Existing screen -s handler
+    if (command.rfind("screen -s", 0) == 0 && command.length() > 10) {
+        if(this->initialized == 1){
+            std::string process_name = command.substr(10);
+            ConsoleManager::get_instance()->switch_console("PROC");
+            auto proc_screen = std::dynamic_pointer_cast<ProcessScreen>(
+                ConsoleManager::get_instance()->getConsoleTable().at("PROC")
+            );
+            if (proc_screen) {
+                proc_screen->setProcessName(process_name);
+            } else {
+                std::cout << "Could not access ProcessScreen.\n";
+            }
+            return;
         } else {
             std::cout << "Please use initialize command first..\n"; 
         }
@@ -116,12 +184,22 @@ void MainConsole::process(){
             }
             break;
         case StringCode::report_util:
-            if(this->initialized == 1){
-                ConsoleManager::get_instance()->switch_console("SCREEN_VIEW");
+            if (this->initialized == 1) {
+                auto screen_console = std::dynamic_pointer_cast<Screen>(
+                    ConsoleManager::get_instance()->getConsoleTable().at("SCREEN_VIEW")
+                );
+
+                if (screen_console) {
+                    screen_console->generateFile();
+                    std::cout << "[Main] Report generated and saved.\n";
+                } else {
+                    std::cout << "Error: Could not access Screen console.\n";
+                }
             } else {
                 std::cout << "Please use initialize command first..\n"; 
             }
             break;
+
         case StringCode::unknown:
             std::cout << "error: unknown command. Please type a valid command.\n";
             break;
